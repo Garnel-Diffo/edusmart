@@ -55,6 +55,6 @@ Thumbs.db
 .vercel
 sentence-transformers-cache/
 
-.claude/
-
+# ===== Claude Code / notes locales =====
+.claude
 prpt.md

@@ -1,3 +1,4 @@
+import torch
 from sentence_transformers import SentenceTransformer
 
 from app.config import settings
@@ -9,6 +10,10 @@ def load_model() -> None:
     """Charge le modèle d'embeddings en mémoire (appelé une fois au démarrage de l'application)."""
     global _model
     if _model is None:
+        # Limite le pool de threads PyTorch : utile sur les instances à CPU
+        # restreint (ex. plan gratuit Render, 0.1 vCPU) où plusieurs threads se
+        # font concurrence sans gain réel et augmentent l'empreinte mémoire.
+        torch.set_num_threads(1)
         _model = SentenceTransformer(settings.embedding_model)
 
 

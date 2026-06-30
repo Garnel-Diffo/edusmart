@@ -3,7 +3,7 @@ services:
     name: edusmart-backend
     runtime: node
     rootDir: backend
-    plan: starter
+    plan: free
     region: frankfurt
     buildCommand: npm install && npm run build
     startCommand: npm run prisma:deploy && npm start
@@ -57,7 +57,7 @@ services:
     name: edusmart-ai-service
     runtime: python
     rootDir: ai-service
-    plan: starter
+    plan: free
     region: frankfurt
     buildCommand: pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
@@ -66,6 +66,12 @@ services:
     envVars:
       - key: ENVIRONMENT
         value: production
+      # Plan gratuit = 0.1 vCPU seulement : limite les pools de threads internes
+      # de PyTorch/tokenizers pour éviter la contention et réduire l'empreinte mémoire.
+      - key: OMP_NUM_THREADS
+        value: "1"
+      - key: TOKENIZERS_PARALLELISM
+        value: "false"
       - key: DATABASE_URL
         sync: false
       - key: INTERNAL_SECRET

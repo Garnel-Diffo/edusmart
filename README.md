@@ -346,9 +346,18 @@ Le fichier [`render.yaml`](render.yaml) décrit les deux services en *Blueprint*
    - `AI_SERVICE_SECRET` (backend) doit être **identique** à `INTERNAL_SECRET` (IA)
 5. Redéployez les deux services pour prendre en compte ces URLs.
 
-> Le service IA charge un modèle d'embeddings en mémoire : prévoyez au moins le plan
-> **Starter** (512 Mo+) plutôt que le plan gratuit, qui peut être trop juste en RAM
-> pour PyTorch + le serveur Uvicorn simultanément.
+> **Déploiement 100% gratuit.** Les deux services utilisent le plan **Free** de Render
+> (`plan: free` dans `render.yaml`) — aucun coût. Deux compromis à connaître :
+> - **Mise en veille** : un service gratuit s'endort après 15 min sans requête et met
+>   ~1 minute à se réveiller au prochain appel. Avant une démo, ouvrez les deux URLs
+>   (`/api/health` et `/health`) quelques minutes à l'avance pour les "réveiller".
+> - **Mémoire** : le service IA charge un modèle d'embeddings en mémoire (~335 Mo
+>   mesurés en local) sur les 512 Mo du plan gratuit — c'est suffisant en usage normal
+>   mais sans grande marge. `OMP_NUM_THREADS=1` et `torch.set_num_threads(1)` sont déjà
+>   configurés pour limiter la surcharge. ⚠️ Le plan **Starter** a exactement la **même
+>   RAM (512 Mo)** que Free — seul le CPU (0.5 vs 0.1 vCPU) et l'absence de mise en
+>   veille changent. Seul le plan **Standard** (2 Go, payant) augmenterait réellement la
+>   marge mémoire si des erreurs "Out of Memory" apparaissaient dans les logs Render.
 
 ### Frontend sur Vercel
 
