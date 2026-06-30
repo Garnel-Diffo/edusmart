@@ -5,7 +5,10 @@ services:
     rootDir: backend
     plan: free
     region: frankfurt
-    buildCommand: npm install && npm run build
+    # --include=dev : npm (Node 26+ sur Render) saute sélectivement certaines
+    # devDependencies (dont les @types/*) quand NODE_ENV=production est déjà
+    # défini au moment du build, ce qui casse `tsc`. Ce flag les force.
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm run prisma:deploy && npm start
     healthCheckPath: /api/health
     autoDeployTrigger: commit
