@@ -10,7 +10,7 @@ const prisma = new PrismaClient();
  * après `npm run db:seed`, sans dépendre de l'interface d'administration.
  */
 async function main() {
-  const motDePasseHash = await bcrypt.hash('EduSmart#2025', 12);
+  const motDePasseHash = await bcrypt.hash('EduSmart#2026', 12);
 
   const admin = await prisma.utilisateur.upsert({
     where: { email: 'admin@edusmart.test' },
@@ -118,9 +118,9 @@ async function main() {
   });
 
   console.log('Seed terminé :');
-  console.log(`  Super Admin : ${admin.email} / EduSmart#2025`);
-  console.log(`  Enseignant  : ${enseignantUser.email} / EduSmart#2025`);
-  console.log(`  Étudiant    : ${etudiantUser.email} / EduSmart#2025`);
+  console.log(`  Super Admin : ${admin.email} / EduSmart#2026`);
+  console.log(`  Enseignant  : ${enseignantUser.email} / EduSmart#2026`);
+  console.log(`  Étudiant    : ${etudiantUser.email} / EduSmart#2026`);
   console.log(`  Filière     : ${filiere.nom} (${filiere.code}), Matière : ${matiere.nom}`);
   console.log(`  Filière     : ${filiereAIA.nom} (${filiereAIA.code})`);
 }

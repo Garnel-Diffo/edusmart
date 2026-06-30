@@ -2,7 +2,7 @@ import type { RoleUtilisateur } from '@prisma/client';
 import { adminRepository } from '@/modules/admin/admin.repository';
 import type { CreateUtilisateurInput, UpdateUtilisateurInput } from '@/modules/admin/admin.validation';
 import { ApiError } from '@/utils/ApiError';
-import { generateTemporaryPassword, hashPassword } from '@/utils/password';
+import { hashPassword } from '@/utils/password';
 import { recordAudit } from '@/utils/audit';
 import { sendEmail } from '@/config/brevo';
 import { welcomeAccountEmail } from '@/utils/emailTemplates';
@@ -46,7 +46,9 @@ export const adminService = {
       throw ApiError.badRequest(`Champs requis manquants pour le rôle ${input.role}`, { champsManquants }); // UC21 - 4b
     }
 
-    const motDePasseTemporaire = generateTemporaryPassword();
+    // Mot de passe initial : matricule pour un étudiant, sinon "EduSmart#2026"
+    const motDePasseTemporaire =
+      input.role === 'ETUDIANT' && input.matricule ? input.matricule : 'EduSmart#2026';
     const motDePasseHash = await hashPassword(motDePasseTemporaire);
 
     const utilisateur = await adminRepository.createWithProfile({ ...input, motDePasseHash });
