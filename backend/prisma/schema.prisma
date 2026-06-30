@@ -1,0 +1,662 @@
+// EduSmart — Schéma de données PostgreSQL (Neon) via Prisma ORM
+// Référence : Cahier d'Analyse (classes métier) + Cahier de Conception (correspondance
+// Classe UML -> Table -> Service -> Repository -> Endpoint).
+// Convention : modèles/champs en camelCase (idiomatique Prisma/TS), tables/colonnes
+// mappées en snake_case (@map/@@map) pour rester fidèles aux noms de tables du cahier.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  directUrl  = env("DIRECT_URL")
+  extensions = [vector]
+}
+
+// =========================================================================
+// ENUMS
+// =========================================================================
+
+enum RoleUtilisateur {
+  ETUDIANT
+  ENSEIGNANT
+  ADMIN_SCOLAIRE
+  DIRECTION
+  SUPER_ADMIN
+
+  @@map("role_utilisateur")
+}
+
+enum StatutCompte {
+  ACTIF
+  DESACTIVE
+  VERROUILLE
+
+  @@map("statut_compte")
+}
+
+enum FormatDocument {
+  PDF
+  PPTX
+  DOCX
+
+  @@map("format_document")
+}
+
+enum StatutIndexation {
+  NON_INDEXE
+  EN_COURS
+  INDEXE
+  ERREUR
+
+  @@map("statut_indexation")
+}
+
+enum TypeEvaluation {
+  CONTROLE
+  EXAMEN
+  TP
+  PROJET
+
+  @@map("type_evaluation")
+}
+
+enum CibleAnnonce {
+  TOUS
+  FILIERE
+  MODULE
+  ETUDIANT
+
+  @@map("cible_annonce")
+}
+
+enum TypeFicheIA {
+  FICHE_RESUME
+  RESUME_DETAILLE
+  QUIZ_QCM
+
+  @@map("type_fiche_ia")
+}
+
+enum TypeSalle {
+  AMPHITHEATRE
+  LABO
+  SALLE_COURS
+
+  @@map("type_salle")
+}
+
+enum Mention {
+  EXCELLENT
+  TRES_BIEN
+  BIEN
+  ASSEZ_BIEN
+  PASSABLE
+  AJOURNE
+
+  @@map("mention")
+}
+
+enum JourSemaine {
+  LUNDI
+  MARDI
+  MERCREDI
+  JEUDI
+  VENDREDI
+  SAMEDI
+  DIMANCHE
+
+  @@map("jour_semaine")
+}
+
+enum TypeSeance {
+  COURS
+  TD
+  TP
+
+  @@map("type_seance")
+}
+
+enum CanalNotification {
+  IN_APP
+  EMAIL
+  PUSH
+
+  @@map("canal_notification")
+}
+
+enum TypeInteractionIA {
+  CHAT
+  RECHERCHE
+  FICHE
+
+  @@map("type_interaction_ia")
+}
+
+enum StatutFiche {
+  EN_COURS
+  PRET
+  ECHEC
+
+  @@map("statut_fiche")
+}
+
+// =========================================================================
+// IDENTITÉ & AUTHENTIFICATION (UC0, UC21)
+// =========================================================================
+
+model Utilisateur {
+  id                 String          @id @default(cuid())
+  email              String          @unique
+  motDePasseHash     String          @map("mot_de_passe_hash")
+  nom                String
+  prenom             String
+  role               RoleUtilisateur
+  telephone          String?
+  avatarUrl          String?         @map("avatar_url")
+  statutCompte       StatutCompte    @default(ACTIF) @map("statut_compte")
+  tentativesEchouees Int             @default(0) @map("tentatives_echouees")
+  verrouilleJusquA   DateTime?       @map("verrouille_jusqu_a")
+  emailVerifie       Boolean         @default(false) @map("email_verifie")
+  derniereConnexion  DateTime?       @map("derniere_connexion")
+  createdAt          DateTime        @default(now()) @map("created_at")
+  updatedAt          DateTime        @updatedAt @map("updated_at")
+
+  etudiant      Etudiant?
+  enseignant    Enseignant?
+  adminScolaire AdminScolaire?
+
+  refreshTokens       RefreshToken[]
+  annoncesPubliees    Annonce[]       @relation("AnnoncesPubliees")
+  messagesEnvoyes     Message[]       @relation("MessagesEnvoyes")
+  messagesSignales    Message[]       @relation("MessagesSignales")
+  notificationsRecues Notification[]  @relation("NotificationsRecues")
+  auditLogs           AuditLog[]
+  interactionsIA      InteractionIA[]
+
+  @@index([role])
+  @@map("utilisateur")
+}
+
+model Etudiant {
+  utilisateurId String @id @map("utilisateur_id")
+  matricule     String @unique
+  niveau        String
+  anneeEntree   Int    @map("annee_entree")
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  inscriptions    Inscription[]
+  notes           Note[]
+  fichesRevision  FicheRevision[]
+  telechargements TelechargementLog[]
+  bulletins       BulletinSemestre[]
+
+  @@map("etudiant")
+}
+
+model Enseignant {
+  utilisateurId String  @id @map("utilisateur_id")
+  specialite    String?
+  grade         String?
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  matieres       Matiere[]
+  coursDocuments CoursDocument[]
+  seances        Seance[]
+  notesSaisies   Note[]          @relation("NotesSaisies")
+
+  @@map("enseignant")
+}
+
+model AdminScolaire {
+  utilisateurId String  @id @map("utilisateur_id")
+  fonction      String?
+  superAdmin    Boolean @default(false) @map("super_admin")
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  notesValidees       Note[]             @relation("NotesValidees")
+  bulletinsGeneres    BulletinSemestre[]
+  pvGeneres           PVDeliberation[]
+  emploisDuTempsCrees EmploiDuTemps[]
+
+  @@map("admin_scolaire")
+}
+
+model RefreshToken {
+  id            String   @id @default(cuid())
+  utilisateurId String   @map("utilisateur_id")
+  tokenHash     String   @unique @map("token_hash")
+  userAgent     String?  @map("user_agent")
+  ip            String?
+  expiresAt     DateTime @map("expires_at")
+  revoked       Boolean  @default(false)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  @@index([utilisateurId])
+  @@map("refresh_token")
+}
+
+// =========================================================================
+// STRUCTURES ACADÉMIQUES (UC21)
+// =========================================================================
+
+model Filiere {
+  id          String   @id @default(cuid())
+  nom         String
+  code        String   @unique
+  cycle       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  modules         Module[]
+  inscriptions    Inscription[]
+  emploisDuTemps  EmploiDuTemps[]
+  annonces        Annonce[]
+  pvDeliberations PVDeliberation[]
+
+  @@map("filiere")
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  filiereId   String   @map("filiere_id")
+  nom         String
+  code        String   @unique
+  semestre    Int
+  creditsEcts Int      @map("credits_ects")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  filiere Filiere @relation(fields: [filiereId], references: [id], onDelete: Cascade)
+
+  matieres        Matiere[]
+  canalDiscussion CanalDiscussion?
+  annonces        Annonce[]
+  fichesRevision  FicheRevision[]
+
+  @@index([filiereId])
+  @@map("module")
+}
+
+model Matiere {
+  id           String   @id @default(cuid())
+  moduleId     String   @map("module_id")
+  enseignantId String?  @map("enseignant_id")
+  nom          String
+  code         String   @unique
+  coefficient  Decimal  @default(1) @db.Decimal(4, 2)
+  creditsEcts  Int      @map("credits_ects")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  module     Module      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  enseignant Enseignant? @relation(fields: [enseignantId], references: [utilisateurId])
+
+  coursDocuments CoursDocument[]
+  notes          Note[]
+  seances        Seance[]
+  fichesRevision FicheRevision[]
+
+  @@index([moduleId])
+  @@index([enseignantId])
+  @@map("matiere")
+}
+
+model Inscription {
+  id            String   @id @default(cuid())
+  etudiantId    String   @map("etudiant_id")
+  filiereId     String   @map("filiere_id")
+  anneeScolaire String   @map("annee_scolaire")
+  niveau        String
+  statut        String   @default("ACTIVE")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  etudiant Etudiant @relation(fields: [etudiantId], references: [utilisateurId], onDelete: Cascade)
+  filiere  Filiere  @relation(fields: [filiereId], references: [id])
+
+  @@unique([etudiantId, filiereId, anneeScolaire])
+  @@index([filiereId])
+  @@map("inscription")
+}
+
+model Salle {
+  id        String    @id @default(cuid())
+  nom       String    @unique
+  capacite  Int
+  type      TypeSalle
+  batiment  String?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  seances Seance[]
+
+  @@map("salle")
+}
+
+// =========================================================================
+// EMPLOI DU TEMPS (UC5, UC6)
+// =========================================================================
+
+model EmploiDuTemps {
+  id            String   @id @default(cuid())
+  filiereId     String   @map("filiere_id")
+  semestre      Int
+  anneeScolaire String   @map("annee_scolaire")
+  createdById   String   @map("created_by_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  filiere   Filiere       @relation(fields: [filiereId], references: [id])
+  createdBy AdminScolaire @relation(fields: [createdById], references: [utilisateurId])
+  seances   Seance[]
+
+  @@unique([filiereId, semestre, anneeScolaire])
+  @@map("emploi_du_temps")
+}
+
+model Seance {
+  id              String      @id @default(cuid())
+  emploiDuTempsId String      @map("emploi_du_temps_id")
+  matiereId       String      @map("matiere_id")
+  salleId         String      @map("salle_id")
+  enseignantId    String      @map("enseignant_id")
+  jourSemaine     JourSemaine @map("jour_semaine")
+  heureDebut      String      @map("heure_debut")
+  heureFin        String      @map("heure_fin")
+  typeSeance      TypeSeance  @default(COURS) @map("type_seance")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  emploiDuTemps EmploiDuTemps @relation(fields: [emploiDuTempsId], references: [id], onDelete: Cascade)
+  matiere       Matiere       @relation(fields: [matiereId], references: [id])
+  salle         Salle         @relation(fields: [salleId], references: [id])
+  enseignant    Enseignant    @relation(fields: [enseignantId], references: [utilisateurId])
+
+  @@index([emploiDuTempsId])
+  @@index([salleId, jourSemaine])
+  @@index([enseignantId, jourSemaine])
+  @@map("seance")
+}
+
+// =========================================================================
+// COURS & PIPELINE RAG (UC1, UC2, UC3, UC13, UC14, UC15)
+// =========================================================================
+
+model CoursDocument {
+  id                 String           @id @default(cuid())
+  matiereId          String           @map("matiere_id")
+  enseignantId       String           @map("enseignant_id")
+  titre              String
+  nomFichier         String           @map("nom_fichier")
+  format             FormatDocument
+  tailleOctets       Int              @map("taille_octets")
+  cloudinaryPublicId String           @map("cloudinary_public_id")
+  cloudinaryUrl      String           @map("cloudinary_url")
+  statutIndexation   StatutIndexation @default(NON_INDEXE) @map("statut_indexation")
+  dateDepot          DateTime         @default(now()) @map("date_depot")
+  nbTelechargements  Int              @default(0) @map("nb_telechargements")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  matiere    Matiere    @relation(fields: [matiereId], references: [id], onDelete: Cascade)
+  enseignant Enseignant @relation(fields: [enseignantId], references: [utilisateurId])
+
+  chunks          DocumentChunk[]
+  telechargements TelechargementLog[]
+  fichesRevision  FicheRevision[]
+
+  @@index([matiereId])
+  @@map("cours_document")
+}
+
+/// Table des chunks + embeddings, écrite/lue principalement par le service IA
+/// (Python, accès SQL direct via pgvector). La colonne `embedding` est typée
+/// `Unsupported` côté Prisma Client : les requêtes de similarité vectorielle
+/// passent par $queryRaw (cosine distance `<=>`).
+model DocumentChunk {
+  id              String                      @id @default(cuid())
+  coursDocumentId String                      @map("cours_document_id")
+  contenuTexte    String                      @map("contenu_texte")
+  positionIndex   Int                         @map("position_index")
+  embedding       Unsupported("vector(384)")?
+  createdAt       DateTime                    @default(now()) @map("created_at")
+
+  coursDocument CoursDocument @relation(fields: [coursDocumentId], references: [id], onDelete: Cascade)
+
+  @@index([coursDocumentId])
+  @@map("document_chunk")
+}
+
+model TelechargementLog {
+  id              String   @id @default(cuid())
+  coursDocumentId String   @map("cours_document_id")
+  etudiantId      String   @map("etudiant_id")
+  ip              String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  coursDocument CoursDocument @relation(fields: [coursDocumentId], references: [id], onDelete: Cascade)
+  etudiant      Etudiant      @relation(fields: [etudiantId], references: [utilisateurId])
+
+  @@index([coursDocumentId])
+  @@index([etudiantId])
+  @@map("telechargement_log")
+}
+
+// =========================================================================
+// ÉVALUATION (UC8, UC9, UC10, UC11)
+// =========================================================================
+
+model Note {
+  id                    String         @id @default(cuid())
+  etudiantId            String         @map("etudiant_id")
+  matiereId             String         @map("matiere_id")
+  typeEvaluation        TypeEvaluation @map("type_evaluation")
+  valeur                Decimal        @db.Decimal(4, 2)
+  coefficientEvaluation Decimal        @default(1) @map("coefficient_evaluation") @db.Decimal(4, 2)
+  semestre              Int
+  anneeScolaire         String         @map("annee_scolaire")
+  estValide             Boolean        @default(false) @map("est_valide")
+  saisieParId           String         @map("saisie_par_id")
+  valideParId           String?        @map("valide_par_id")
+  dateSaisie            DateTime       @default(now()) @map("date_saisie")
+  dateValidation        DateTime?      @map("date_validation")
+  commentaireRefus      String?        @map("commentaire_refus")
+  createdAt             DateTime       @default(now()) @map("created_at")
+  updatedAt             DateTime       @updatedAt @map("updated_at")
+
+  etudiant  Etudiant       @relation(fields: [etudiantId], references: [utilisateurId], onDelete: Cascade)
+  matiere   Matiere        @relation(fields: [matiereId], references: [id])
+  saisiePar Enseignant     @relation("NotesSaisies", fields: [saisieParId], references: [utilisateurId])
+  validePar AdminScolaire? @relation("NotesValidees", fields: [valideParId], references: [utilisateurId])
+
+  @@unique([etudiantId, matiereId, typeEvaluation, semestre, anneeScolaire])
+  @@index([matiereId, estValide])
+  @@index([etudiantId, semestre, anneeScolaire])
+  @@map("note")
+}
+
+model BulletinSemestre {
+  id               String   @id @default(cuid())
+  etudiantId       String   @map("etudiant_id")
+  semestre         Int
+  anneeScolaire    String   @map("annee_scolaire")
+  moyenneGenerale  Decimal  @map("moyenne_generale") @db.Decimal(5, 2)
+  rang             Int?
+  mention          Mention
+  pdfCloudinaryUrl String?  @map("pdf_cloudinary_url")
+  genereLe         DateTime @default(now()) @map("genere_le")
+  genereParId      String   @map("genere_par_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  etudiant  Etudiant      @relation(fields: [etudiantId], references: [utilisateurId], onDelete: Cascade)
+  generePar AdminScolaire @relation(fields: [genereParId], references: [utilisateurId])
+
+  @@unique([etudiantId, semestre, anneeScolaire])
+  @@map("bulletin_semestre")
+}
+
+model PVDeliberation {
+  id               String   @id @default(cuid())
+  filiereId        String   @map("filiere_id")
+  niveau           String
+  semestre         Int
+  anneeScolaire    String   @map("annee_scolaire")
+  pdfCloudinaryUrl String?  @map("pdf_cloudinary_url")
+  decisionsJson    Json     @map("decisions_json") @db.JsonB
+  genereLe         DateTime @default(now()) @map("genere_le")
+  genereParId      String   @map("genere_par_id")
+  archiveJusquA    DateTime @map("archive_jusqu_a")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  filiere   Filiere       @relation(fields: [filiereId], references: [id])
+  generePar AdminScolaire @relation(fields: [genereParId], references: [utilisateurId])
+
+  @@unique([filiereId, niveau, semestre, anneeScolaire])
+  @@map("pv_deliberation")
+}
+
+// =========================================================================
+// COMMUNICATION (UC17, UC18, UC19, UC20)
+// =========================================================================
+
+model Annonce {
+  id              String       @id @default(cuid())
+  auteurId        String       @map("auteur_id")
+  titre           String
+  contenu         String
+  cible           CibleAnnonce
+  filiereId       String?      @map("filiere_id")
+  moduleId        String?      @map("module_id")
+  etudiantCibleId String?      @map("etudiant_cible_id")
+  datePublication DateTime     @default(now()) @map("date_publication")
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  auteur  Utilisateur @relation("AnnoncesPubliees", fields: [auteurId], references: [id])
+  filiere Filiere?    @relation(fields: [filiereId], references: [id])
+  module  Module?     @relation(fields: [moduleId], references: [id])
+
+  @@index([cible, filiereId])
+  @@index([datePublication])
+  @@map("annonce")
+}
+
+model Notification {
+  id             String            @id @default(cuid())
+  destinataireId String            @map("destinataire_id")
+  type           String
+  titre          String
+  contenu        String
+  lien           String?
+  estLue         Boolean           @default(false) @map("est_lue")
+  canal          CanalNotification @default(IN_APP)
+  envoyeLe       DateTime?         @map("envoye_le")
+  luLe           DateTime?         @map("lu_le")
+  createdAt      DateTime          @default(now()) @map("created_at")
+
+  destinataire Utilisateur @relation("NotificationsRecues", fields: [destinataireId], references: [id], onDelete: Cascade)
+
+  @@index([destinataireId, estLue])
+  @@map("notification")
+}
+
+model CanalDiscussion {
+  id        String   @id @default(cuid())
+  moduleId  String   @unique @map("module_id")
+  nom       String
+  estActif  Boolean  @default(true) @map("est_actif")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  module   Module    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@map("canal_discussion")
+}
+
+model Message {
+  id           String   @id @default(cuid())
+  canalId      String   @map("canal_id")
+  auteurId     String   @map("auteur_id")
+  contenu      String
+  estSignale   Boolean  @default(false) @map("est_signale")
+  signaleParId String?  @map("signale_par_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  canal      CanalDiscussion @relation(fields: [canalId], references: [id], onDelete: Cascade)
+  auteur     Utilisateur     @relation("MessagesEnvoyes", fields: [auteurId], references: [id])
+  signalePar Utilisateur?    @relation("MessagesSignales", fields: [signaleParId], references: [id])
+
+  @@index([canalId, createdAt])
+  @@map("message")
+}
+
+// =========================================================================
+// INTELLIGENCE ARTIFICIELLE (UC13, UC14, UC15)
+// =========================================================================
+
+model FicheRevision {
+  id               String      @id @default(cuid())
+  etudiantId       String      @map("etudiant_id")
+  matiereId        String?     @map("matiere_id")
+  moduleId         String?     @map("module_id")
+  coursDocumentId  String?     @map("cours_document_id")
+  type             TypeFicheIA
+  contenuGenere    String?     @map("contenu_genere")
+  pdfCloudinaryUrl String?     @map("pdf_cloudinary_url")
+  statut           StatutFiche @default(EN_COURS)
+  genereLe         DateTime?   @map("genere_le")
+  createdAt        DateTime    @default(now()) @map("created_at")
+
+  etudiant      Etudiant       @relation(fields: [etudiantId], references: [utilisateurId], onDelete: Cascade)
+  matiere       Matiere?       @relation(fields: [matiereId], references: [id])
+  module        Module?        @relation(fields: [moduleId], references: [id])
+  coursDocument CoursDocument? @relation(fields: [coursDocumentId], references: [id])
+
+  @@index([etudiantId])
+  @@map("fiche_revision")
+}
+
+model InteractionIA {
+  id                   String            @id @default(cuid())
+  utilisateurId        String            @map("utilisateur_id")
+  type                 TypeInteractionIA
+  question             String?
+  reponse              String?
+  sourcesJson          Json?             @map("sources_json") @db.JsonB
+  scoreSimilariteMoyen Float?            @map("score_similarite_moyen")
+  dureeMs              Int?              @map("duree_ms")
+  createdAt            DateTime          @default(now()) @map("created_at")
+
+  utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  @@index([utilisateurId, type])
+  @@map("interaction_ia")
+}
+
+// =========================================================================
+// AUDIT & TRAÇABILITÉ (UC6, UC9, UC10, UC18, UC21)
+// =========================================================================
+
+model AuditLog {
+  id            String   @id @default(cuid())
+  utilisateurId String?  @map("utilisateur_id")
+  action        String
+  entite        String
+  entiteId      String?  @map("entite_id")
+  donneesAvant  Json?    @map("donnees_avant") @db.JsonB
+  donneesApres  Json?    @map("donnees_apres") @db.JsonB
+  ip            String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  utilisateur Utilisateur? @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
+
+  @@index([entite, entiteId])
+  @@index([utilisateurId])
+  @@index([createdAt])
+  @@map("audit_log")
+}

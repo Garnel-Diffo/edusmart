@@ -1,0 +1,23 @@
+{
+  "name": "edusmart-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "EduSmart - Plateforme de gestion scolaire intelligente (monorepo backend/frontend/ai-service)",
+  "scripts": {
+    "install:all": "npm install --prefix backend && npm install --prefix frontend && pip install -r ai-service/requirements.txt",
+    "dev": "concurrently -n BACKEND,FRONTEND,AI -c blue,green,magenta \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:ai\"",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:ai": "cd ai-service && uvicorn app.main:app --reload --port 8000",
+    "build": "npm run build --prefix backend && npm run build --prefix frontend",
+    "lint": "npm run lint --prefix backend && npm run lint --prefix frontend",
+    "test": "npm run test --prefix backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

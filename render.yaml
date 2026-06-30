@@ -1,0 +1,90 @@
+services:
+  - type: web
+    name: edusmart-backend
+    runtime: node
+    rootDir: backend
+    plan: starter
+    region: frankfurt
+    buildCommand: npm install && npm run build
+    startCommand: npm run prisma:deploy && npm start
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      - key: API_BASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 24h
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: 30d
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_SENDER_EMAIL
+        sync: false
+      - key: BREVO_SENDER_NAME
+        value: EduSmart
+      - key: AI_SERVICE_URL
+        sync: false # URL publique du service edusmart-ai-service une fois déployé, ex: https://edusmart-ai-service.onrender.com
+      - key: AI_SERVICE_SECRET
+        sync: false # même valeur que celle saisie dans edusmart-ai-service -> INTERNAL_SECRET
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: ETABLISSEMENT_NOM
+        sync: false
+
+  - type: web
+    name: edusmart-ai-service
+    runtime: python
+    rootDir: ai-service
+    plan: starter
+    region: frankfurt
+    buildCommand: pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: INTERNAL_SECRET
+        sync: false # même valeur que AI_SERVICE_SECRET côté edusmart-backend
+      - key: BACKEND_URL
+        sync: false # URL publique du service edusmart-backend, ex: https://edusmart-backend.onrender.com
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: EMBEDDING_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: EMBEDDING_DIMENSIONS
+        value: 384
+      - key: RAG_TOP_K
+        value: 5
+      - key: RAG_SIMILARITY_THRESHOLD
+        value: 0.7
+      - key: CHUNK_SIZE_CHARS
+        value: 1000
+      - key: CHUNK_OVERLAP_CHARS
+        value: 150
