@@ -54,3 +54,7 @@ Thumbs.db
 *.pem
 .vercel
 sentence-transformers-cache/
+
+.claude/
+
+prpt.md
