@@ -36,9 +36,9 @@
 ## À propos
 
 **EduSmart** est une plateforme numérique unifiée destinée aux établissements
-d'enseignement supérieur. Elle centralise l'ensemble du cycle pédagogique — diffusion
+d'enseignement supérieur. Elle centralise l'ensemble du cycle pédagogique - diffusion
 des supports de cours, gestion de l'emploi du temps, saisie et validation des notes,
-génération des documents officiels — en intégrant un pipeline **RAG (Retrieval
+génération des documents officiels - en intégrant un pipeline **RAG (Retrieval
 Augmented Generation)** qui transforme les cours déposés par les enseignants en un
 assistant pédagogique conversationnel, un moteur de recherche sémantique et un
 générateur de fiches de révision.
@@ -83,18 +83,18 @@ flowchart TB
         Browser["Navigateur (mobile-first)"]
     end
 
-    subgraph Vercel["Vercel — Frontend"]
+    subgraph Vercel["Vercel - Frontend"]
         Next["Next.js 14<br/>App Router + Tailwind"]
     end
 
-    subgraph Render["Render — Backend"]
+    subgraph Render["Render - Backend"]
         API["Node.js / Express<br/>REST API + Socket.io"]
         AI["Python / FastAPI<br/>Pipeline RAG"]
     end
 
     subgraph Data["Couche données"]
-        Neon[("PostgreSQL — Neon<br/>+ pgvector")]
-        Upstash[("Redis — Upstash<br/>cache + files BullMQ")]
+        Neon[("PostgreSQL - Neon<br/>+ pgvector")]
+        Upstash[("Redis - Upstash<br/>cache + files BullMQ")]
         Cloudinary[("Cloudinary<br/>stockage fichiers")]
     end
 
@@ -117,7 +117,7 @@ flowchart TB
 ### Modèle de données
 
 Le schéma complet (25 tables, 11 enums) est défini dans
-[`backend/prisma/schema.prisma`](backend/prisma/schema.prisma) — source unique de
+[`backend/prisma/schema.prisma`](backend/prisma/schema.prisma) - source unique de
 vérité, appliquée via les migrations versionnées dans `backend/prisma/migrations/`.
 Points clés :
 
@@ -133,7 +133,7 @@ Monorepo à 3 applications indépendantes, déployées séparément :
 
 ```
 edusmart/
-├── backend/            # API Node.js/Express/TypeScript — déployé sur Render
+├── backend/            # API Node.js/Express/TypeScript - déployé sur Render
 │   ├── src/
 │   │   ├── modules/    # auth, admin, structures, cours, edt, notes, bulletins,
 │   │   │                 annonces, messagerie, notifications, stats, ia
@@ -142,12 +142,12 @@ edusmart/
 │   ├── docs/
 │   │   └── API.md       # référence complète des endpoints REST + événements Socket.io
 │   └── tests/           # Jest (règles métier critiques)
-├── ai-service/          # Service IA Python/FastAPI — déployé sur Render
+├── ai-service/          # Service IA Python/FastAPI - déployé sur Render
 │   ├── app/
 │   │   ├── routers/    # index, chat, search, fiche
 │   │   ├── services/   # chunking, embeddings, vectorstore, groq_client, rag
 │   └── tests/          # pytest
-├── frontend/            # Application Next.js — déployée sur Vercel
+├── frontend/            # Application Next.js - déployée sur Vercel
 │   └── src/
 │       ├── app/         # routes par rôle : etudiant/, enseignant/, admin/
 │       ├── components/  # ui/ (design system), layout/, shared/
@@ -188,7 +188,7 @@ cp ai-service/.env.example ai-service/.env
 cp frontend/.env.example frontend/.env.local
 ```
 
-> ⚠️ Ne committez **jamais** un fichier `.env*` réel — ils sont exclus via
+> ⚠️ Ne committez **jamais** un fichier `.env*` réel - ils sont exclus via
 > `.gitignore`. Voir la section [Variables d&#39;environnement](#variables-denvironnement)
 > pour le détail de chaque clé.
 
@@ -211,7 +211,7 @@ cp frontend/.env.example frontend/.env.local
 ```bash
 cd backend
 npm install
-npm run dev      # http://localhost:4000 — tsx watch, rechargement à chaud
+npm run dev      # http://localhost:4000 - tsx watch, rechargement à chaud
 ```
 
 Vérification : `curl http://localhost:4000/api/health` doit répondre `{"success":true,...}`.
@@ -221,12 +221,12 @@ Vérification : `curl http://localhost:4000/api/health` doit répondre `{"succes
 ```bash
 cd ai-service
 python -m venv venv
-./venv/Scripts/activate        # Windows : venv\Scripts\activate — macOS/Linux : source venv/bin/activate
+./venv/Scripts/activate        # Windows : venv\Scripts\activate - macOS/Linux : source venv/bin/activate
 pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
 uvicorn app.main:app --reload --port 8000
 ```
 
-Le premier démarrage télécharge le modèle d'embeddings (`all-MiniLM-L6-v2`, ~90 Mo) —
+Le premier démarrage télécharge le modèle d'embeddings (`all-MiniLM-L6-v2`, ~90 Mo) -
 nécessite une connexion internet. Vérification : `curl http://localhost:8000/health`.
 
 ### 5. Frontend Next.js
@@ -299,13 +299,13 @@ Le détail exhaustif de chaque variable (avec commentaires) est dans les fichier
 ## Tests
 
 ```bash
-# Backend — Jest (règles métier critiques : moyennes, conflits EDT, verrouillage compte)
+# Backend - Jest (règles métier critiques : moyennes, conflits EDT, verrouillage compte)
 cd backend && npm test
 
-# Service IA — pytest (chunking, parsing)
+# Service IA - pytest (chunking, parsing)
 cd ai-service && pytest
 
-# Frontend — build de production (type-check + lint inclus)
+# Frontend - build de production (type-check + lint inclus)
 cd frontend && npm run build
 ```
 
@@ -331,16 +331,16 @@ Le fichier [`render.yaml`](render.yaml) décrit les deux services en *Blueprint*
 5. Redéployez les deux services pour prendre en compte ces URLs.
 
 > **Déploiement 100% gratuit.** Les deux services utilisent le plan **Free** de Render
-> (`plan: free` dans `render.yaml`) — aucun coût. Deux compromis à connaître :
+> (`plan: free` dans `render.yaml`) - aucun coût. Deux compromis à connaître :
 >
 > - **Mise en veille** : un service gratuit s'endort après 15 min sans requête et met
 >   ~1 minute à se réveiller au prochain appel. Avant une démo, ouvrez les deux URLs
 >   (`/api/health` et `/health`) quelques minutes à l'avance pour les "réveiller".
 > - **Mémoire** : le service IA charge un modèle d'embeddings en mémoire (~335 Mo
->   mesurés en local) sur les 512 Mo du plan gratuit — c'est suffisant en usage normal
+>   mesurés en local) sur les 512 Mo du plan gratuit - c'est suffisant en usage normal
 >   mais sans grande marge. `OMP_NUM_THREADS=1` et `torch.set_num_threads(1)` sont déjà
 >   configurés pour limiter la surcharge. ⚠️ Le plan **Starter** a exactement la **même
->   RAM (512 Mo)** que Free — seul le CPU (0.5 vs 0.1 vCPU) et l'absence de mise en
+>   RAM (512 Mo)** que Free - seul le CPU (0.5 vs 0.1 vCPU) et l'absence de mise en
 >   veille changent. Seul le plan **Standard** (2 Go, payant) augmenterait réellement la
 >   marge mémoire si des erreurs "Out of Memory" apparaissaient dans les logs Render.
 
@@ -361,7 +361,7 @@ Le fichier [`render.yaml`](render.yaml) décrit les deux services en *Blueprint*
 - **Intégration continue** : chaque Pull Request déclenche lint + build + tests pour
   les 3 applications ([.github/workflows/ci.yml](.github/workflows/ci.yml)).
 - **Déploiement continu** : Render et Vercel sont tous deux configurés en
-  *auto-deploy* sur la branche `main` — un merge dans `main` déploie automatiquement
+  *auto-deploy* sur la branche `main` - un merge dans `main` déploie automatiquement
   les 3 services.
 
 ## Sécurité
@@ -381,25 +381,25 @@ Le fichier [`render.yaml`](render.yaml) décrit les deux services en *Blueprint*
 
 ## Équipe & contribution
 
-Projet réalisé par une équipe de 3 — voir [CONTRIBUTING.md](CONTRIBUTING.md) pour le
+Projet réalisé par une équipe de 3 - voir [CONTRIBUTING.md](CONTRIBUTING.md) pour le
 détail de la répartition, le workflow Git (branches, commits, Pull Requests) et les
 fiches de tâches assignées à chaque contributeur.
 
 | Membre                  | Rôle                                                             |
 | ----------------------- | ----------------------------------------------------------------- |
 | DIFFO KENNE Garnel      | Chef de projet, Fullstack (backend, service IA, DevOps, frontend) |
-| MBIDA NGUELE Paul Loïc | Frontend — feature Annonces                                      |
-| MEZAGO Wilfried Aymar   | Frontend — feature Messagerie temps réel                        |
+| MBIDA NGUELE Paul Loïc | Frontend - feature Annonces                                      |
+| MEZAGO Wilfried Aymar   | Frontend - feature Messagerie temps réel                        |
 
 ## Documentation complémentaire
 
-- [backend/docs/API.md](backend/docs/API.md) — référence complète des endpoints REST
+- [backend/docs/API.md](backend/docs/API.md) - référence complète des endpoints REST
   et des événements Socket.io.
-- [CONTRIBUTING.md](CONTRIBUTING.md) — workflow Git et fiches de tâches.
-- `backend/prisma/schema.prisma` — schéma de données commenté, source de vérité.
+- [CONTRIBUTING.md](CONTRIBUTING.md) - workflow Git et fiches de tâches.
+- `backend/prisma/schema.prisma` - schéma de données commenté, source de vérité.
 
 ## Licence
 
-Projet académique réalisé dans le cadre du cours de Génie Logiciel — École Nationale
+Projet académique réalisé dans le cadre du cours de Génie Logiciel - École Nationale
 Supérieure Polytechnique de Yaoundé, Université de Yaoundé I, Année académique
 2025–2026.

@@ -4,8 +4,21 @@ import { Providers } from '@/components/providers';
 
 export const metadata: Metadata = {
   title: { template: '%s | EduSmart', default: 'EduSmart — Gestion scolaire intelligente' },
-  description: 'Plateforme numérique unifiée pour la gestion académique et l\'intelligence artificielle pédagogique.',
+  description: "Plateforme numérique unifiée pour la gestion académique et l'intelligence artificielle pédagogique.",
   manifest: '/manifest.json',
+  // Next.js App Router détecte automatiquement src/app/icon.tsx → <link rel="icon">
+  // et src/app/apple-icon.tsx → <link rel="apple-touch-icon">.
+  // On déclare ici le SVG (qualité maximale, toutes résolutions) et l'ICO legacy.
+  icons: {
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico',  sizes: '32x32',  type: 'image/x-icon' },
+    ],
+    apple: [{ url: '/apple-icon', type: 'image/png' }],
+    other: [
+      { rel: 'mask-icon', url: '/favicon.svg', color: '#1e3a5f' },
+    ],
+  },
 };
 
 export const viewport: Viewport = {

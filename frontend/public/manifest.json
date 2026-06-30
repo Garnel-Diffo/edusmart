@@ -1,11 +1,25 @@
 {
   "name": "EduSmart — Gestion scolaire intelligente",
   "short_name": "EduSmart",
-  "description": "Plateforme de gestion scolaire intelligente avec assistant IA pédagogique",
+  "description": "Plateforme numérique unifiée pour la gestion académique et l'intelligence artificielle pédagogique.",
   "start_url": "/login",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#0f172a",
   "theme_color": "#1F4E79",
   "orientation": "portrait-primary",
-  "icons": []
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
 }

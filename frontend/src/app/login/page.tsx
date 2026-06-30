@@ -32,7 +32,7 @@ export default function LoginPage() {
 
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Panneau visuel — masqué sur mobile (mobile-first : priorité au formulaire) */}
+      {/* Panneau visuel - masqué sur mobile (mobile-first : priorité au formulaire) */}
       <div className="relative hidden flex-col justify-between gradient-brand p-10 text-white lg:flex">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15">
@@ -46,7 +46,7 @@ export default function LoginPage() {
             La gestion scolaire intelligente, propulsée par l&apos;IA.
           </h2>
           <p className="mt-4 text-white/80">
-            Cours, emplois du temps, notes et chatbot pédagogique RAG — tout votre établissement, dans une seule
+            Cours, emplois du temps, notes et chatbot pédagogique RAG - tout votre établissement, dans une seule
             plateforme moderne et temps réel.
           </p>
           <div className="mt-8 flex items-center gap-2 text-sm text-white/70">
@@ -55,7 +55,7 @@ export default function LoginPage() {
           </div>
         </motion.div>
 
-        <p className="text-xs text-white/50">© {new Date().getFullYear()} EduSmart — Tous droits réservés</p>
+        <p className="text-xs text-white/50">© {new Date().getFullYear()} EduSmart - Tous droits réservés</p>
       </div>
 
       {/* Formulaire */}
