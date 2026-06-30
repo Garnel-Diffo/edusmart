@@ -73,4 +73,9 @@ export const authController = {
     const user = await authService.updateAvatar(req.user!.id, secureUrl);
     res.json({ success: true, user });
   }),
+
+  updateProfile: asyncHandler(async (req: Request, res: Response) => {
+    const user = await authService.updateProfile(req.user!.id, req.body);
+    res.json({ success: true, user });
+  }),
 };

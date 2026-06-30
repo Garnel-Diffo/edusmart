@@ -1,13 +1,11 @@
-import type { JourSemaine, TypeSeance } from '@prisma/client';
 import { prisma } from '@/config/prisma';
 import { edtRepository } from '@/modules/edt/edt.repository';
-import { ApiError } from '@/utils/ApiError';
 import { cacheGet, cacheSet, cacheDel } from '@/config/redis';
 import { recordAudit } from '@/utils/audit';
 import { notifyManyUsers } from '@/modules/notifications/notifications.service';
 import { emitToFiliere } from '@/sockets/emit';
 import { SOCKET_EVENTS } from '@/sockets/rooms';
-import { intervallesSeChevauchent, suggererCreneaux } from '@/utils/scheduling';
+import { uploadPublicFileBuffer, deleteCloudinaryAsset } from '@/utils/cloudinaryUpload';
 
 const CACHE_TTL_SECONDS = 600;
 
@@ -16,7 +14,7 @@ function cacheKey(filiereId: string, semestre: number, anneeScolaire: string) {
 }
 
 export const edtService = {
-  /** UC5 - Consulter l'emploi du temps (mise en cache Redis, NFR < 1.5s + disponibilité hors-ligne). */
+  /** UC5 - Consulter l'emploi du temps (fichier image/PDF, mise en cache Redis). */
   async getForFiliere(filiereId: string, semestre: number, anneeScolaire: string) {
     const key = cacheKey(filiereId, semestre, anneeScolaire);
     const cached = await cacheGet(key);
@@ -29,11 +27,6 @@ export const edtService = {
     return edt;
   },
 
-  /** UC5 - 3b : l'enseignant consulte son propre planning, toutes filières confondues. */
-  getForEnseignant(enseignantId: string) {
-    return edtRepository.findSeancesForEnseignant(enseignantId);
-  },
-
   /** Filière active de l'étudiant, pour pré-remplir la consultation de son EDT sans qu'il ait à la sélectionner. */
   async getFiliereIdPourEtudiant(etudiantId: string): Promise<string | null> {
     const inscription = await prisma.inscription.findFirst({
@@ -44,103 +37,44 @@ export const edtService = {
     return inscription?.filiereId ?? null;
   },
 
-  /** UC6 - Crée l'EDT du semestre s'il n'existe pas encore. */
-  async ensureEmploiDuTemps(filiereId: string, semestre: number, anneeScolaire: string, adminId: string) {
-    const existing = await edtRepository.findEmploiDuTemps(filiereId, semestre, anneeScolaire);
-    if (existing) return existing;
-    return edtRepository.createEmploiDuTemps(filiereId, semestre, anneeScolaire, adminId);
-  },
-
-  /** UC6 - Ajoute une séance avec détection exhaustive des conflits (salle + enseignant). */
-  async addSeance(
-    emploiDuTempsId: string,
-    data: {
-      matiereId: string;
-      salleId: string;
-      enseignantId: string;
-      jourSemaine: JourSemaine;
-      heureDebut: string;
-      heureFin: string;
-      typeSeance: TypeSeance;
-    },
+  /** UC6 - Dépose (ou remplace) le fichier d'emploi du temps d'une filière pour un semestre donné. */
+  async uploadEmploiDuTemps(
+    params: { filiereId: string; semestre: number; anneeScolaire: string; titre?: string },
+    file: { buffer: Buffer; mimetype: string },
     adminId: string,
   ) {
-    await this.verifierAbsenceDeConflit(data);
+    const existant = await edtRepository.findEmploiDuTemps(params.filiereId, params.semestre, params.anneeScolaire);
 
-    const seance = await edtRepository.createSeance({ ...data, emploiDuTempsId });
-    await this.invaliderCacheEtNotifier(emploiDuTempsId, adminId, 'CREATE', seance.id);
-    return seance;
-  },
+    const format = file.mimetype === 'application/pdf' ? 'PDF' : 'IMAGE';
+    const resourceType = format === 'PDF' ? 'raw' : 'image';
+    const { publicId, secureUrl } = await uploadPublicFileBuffer(file.buffer, `edusmart/edt/${params.filiereId}`, resourceType);
 
-  async updateSeance(
-    seanceId: string,
-    data: Partial<{
-      matiereId: string;
-      salleId: string;
-      enseignantId: string;
-      jourSemaine: JourSemaine;
-      heureDebut: string;
-      heureFin: string;
-      typeSeance: TypeSeance;
-    }>,
-    adminId: string,
-  ) {
-    const existante = await edtRepository.findSeanceById(seanceId);
-    if (!existante) throw ApiError.notFound('Séance introuvable');
+    const edt = await edtRepository.upsert({
+      ...params,
+      format,
+      cloudinaryPublicId: publicId,
+      cloudinaryUrl: secureUrl,
+      createdById: adminId,
+    });
 
-    const merged = { ...existante, ...data };
-    await this.verifierAbsenceDeConflit(
-      {
-        jourSemaine: merged.jourSemaine,
-        salleId: merged.salleId,
-        enseignantId: merged.enseignantId,
-        heureDebut: merged.heureDebut,
-        heureFin: merged.heureFin,
-      },
-      seanceId,
-    );
-
-    const seance = await edtRepository.updateSeance(seanceId, data);
-    await this.invaliderCacheEtNotifier(existante.emploiDuTempsId, adminId, 'UPDATE', seanceId);
-    return seance;
-  },
-
-  async deleteSeance(seanceId: string, adminId: string) {
-    const existante = await edtRepository.findSeanceById(seanceId);
-    if (!existante) throw ApiError.notFound('Séance introuvable');
-
-    await edtRepository.deleteSeance(seanceId); // UC6 - 4b : confirmation gérée côté frontend avant l'appel
-    await this.invaliderCacheEtNotifier(existante.emploiDuTempsId, adminId, 'DELETE', seanceId);
-  },
-
-  /** UC6 - 4a : conflit détecté → exception avec créneaux alternatifs proposés. */
-  async verifierAbsenceDeConflit(
-    params: { jourSemaine: JourSemaine; salleId: string; enseignantId: string; heureDebut: string; heureFin: string },
-    excludeSeanceId?: string,
-  ) {
-    const candidats = await edtRepository.findConflicts({ ...params, excludeSeanceId });
-    const conflits = candidats.filter((s) => intervallesSeChevauchent(params.heureDebut, params.heureFin, s.heureDebut, s.heureFin));
-
-    if (conflits.length > 0) {
-      const creneauxAlternatifs = suggererCreneaux(params.heureFin);
-      throw ApiError.conflict('Conflit détecté : salle ou enseignant déjà occupé sur ce créneau', {
-        conflits: conflits.map((c) => ({ id: c.id, jourSemaine: c.jourSemaine, heureDebut: c.heureDebut, heureFin: c.heureFin })),
-        creneauxAlternatifs,
-      });
+    if (existant && existant.cloudinaryPublicId !== publicId) {
+      const ancienResourceType = existant.format === 'PDF' ? 'raw' : 'image';
+      await deleteCloudinaryAsset(existant.cloudinaryPublicId, ancienResourceType).catch(() => undefined);
     }
-  },
 
-  async invaliderCacheEtNotifier(emploiDuTempsId: string, adminId: string, action: string, seanceId: string) {
-    const edt = await prisma.emploiDuTemps.findUnique({ where: { id: emploiDuTempsId } });
-    if (!edt) return;
+    await cacheDel(cacheKey(params.filiereId, params.semestre, params.anneeScolaire));
+    await recordAudit({
+      utilisateurId: adminId,
+      action: existant ? 'EDT_REMPLACE' : 'EDT_DEPOSE',
+      entite: 'EmploiDuTemps',
+      entiteId: edt.id,
+      donneesApres: { filiereId: params.filiereId, semestre: params.semestre, anneeScolaire: params.anneeScolaire },
+    });
 
-    await cacheDel(cacheKey(edt.filiereId, edt.semestre, edt.anneeScolaire));
-    await recordAudit({ utilisateurId: adminId, action: `EDT_${action}`, entite: 'Seance', entiteId: seanceId });
-
-    emitToFiliere(edt.filiereId, SOCKET_EVENTS.EDT_UPDATED, { emploiDuTempsId, action });
+    emitToFiliere(params.filiereId, SOCKET_EVENTS.EDT_UPDATED, { emploiDuTempsId: edt.id });
 
     const etudiants = await prisma.etudiant.findMany({
-      where: { inscriptions: { some: { filiereId: edt.filiereId, statut: 'ACTIVE' } } },
+      where: { inscriptions: { some: { filiereId: params.filiereId, statut: 'ACTIVE' } } },
       select: { utilisateurId: true },
     });
     await notifyManyUsers(
@@ -148,10 +82,12 @@ export const edtService = {
         destinataireId: e.utilisateurId,
         type: 'EDT_MODIFIE',
         titre: "L'emploi du temps a été mis à jour",
-        contenu: 'Une ou plusieurs séances ont été modifiées pour votre filière.',
-        lien: '/emploi-du-temps',
+        contenu: `Le nouvel emploi du temps du semestre ${params.semestre} (${params.anneeScolaire}) est disponible.`,
+        lien: '/etudiant/edt',
         envoyerEmail: true,
       })),
     );
+
+    return edt;
   },
 };

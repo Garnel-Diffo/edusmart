@@ -1,17 +1,25 @@
 import { prisma } from '@/config/prisma';
 
+/** Filière + niveau de l'inscription active, exposés via /auth/me pour l'affichage côté frontend. */
+const inscriptionActiveInclude = {
+  where: { statut: 'ACTIVE' as const },
+  orderBy: { createdAt: 'desc' as const },
+  take: 1,
+  include: { filiere: true },
+};
+
 export const authRepository = {
   findByEmail(email: string) {
     return prisma.utilisateur.findUnique({
       where: { email },
-      include: { etudiant: true, enseignant: true, adminScolaire: true },
+      include: { etudiant: { include: { inscriptions: inscriptionActiveInclude } }, enseignant: true, adminScolaire: true },
     });
   },
 
   findById(id: string) {
     return prisma.utilisateur.findUnique({
       where: { id },
-      include: { etudiant: true, enseignant: true, adminScolaire: true },
+      include: { etudiant: { include: { inscriptions: inscriptionActiveInclude } }, enseignant: true, adminScolaire: true },
     });
   },
 
@@ -38,6 +46,10 @@ export const authRepository = {
 
   updateAvatar(userId: string, avatarUrl: string) {
     return prisma.utilisateur.update({ where: { id: userId }, data: { avatarUrl } });
+  },
+
+  updateProfile(userId: string, data: { nom?: string; prenom?: string; telephone?: string }) {
+    return prisma.utilisateur.update({ where: { id: userId }, data });
   },
 
   updatePassword(userId: string, motDePasseHash: string) {

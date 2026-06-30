@@ -3,6 +3,14 @@ import { ApiError } from '@/utils/ApiError';
 import { recordAudit } from '@/utils/audit';
 import { notifyManyUsers } from '@/modules/notifications/notifications.service';
 import { parsePagination, buildPaginatedResult, type PaginationQuery } from '@/utils/pagination';
+import { uploadDocumentBuffer } from '@/utils/cloudinaryUpload';
+
+interface FichierAnnonce {
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
+  originalname: string;
+}
 
 interface UserContext {
   id: string;
@@ -63,11 +71,17 @@ export const annoncesService = {
     return buildPaginatedResult(data, total, page, pageSize);
   },
 
-  /** UC18 - Publier une annonce. */
-  async publier(auteur: UserContext, input: CreateAnnonceInput) {
+  /** UC18 - Publier une annonce (admin/direction libre, enseignant restreint à son périmètre,
+   * étudiant délégué restreint à sa propre filière, avec pièce jointe optionnelle type WhatsApp). */
+  async publier(auteur: UserContext, input: CreateAnnonceInput, fichier?: FichierAnnonce) {
     if (ressembleASpam(input.titre) || ressembleASpam(input.contenu)) {
       throw ApiError.badRequest('Le contenu semble contenir des répétitions excessives, veuillez le reformuler'); // UC18 - E2
     }
+
+    let cible = input.cible;
+    let filiereId = input.filiereId;
+    let moduleId = input.moduleId;
+    let etudiantCibleId = input.etudiantCibleId;
 
     if (auteur.role === 'ENSEIGNANT') {
       if (input.cible === 'TOUS' || input.cible === 'ETUDIANT') {
@@ -82,25 +96,52 @@ export const annoncesService = {
       if (input.cible === 'MODULE' && !moduleIds.includes(input.moduleId!)) {
         throw ApiError.forbidden('Vous ne pouvez cibler que vos propres modules');
       }
+    } else if (auteur.role === 'ETUDIANT') {
+      const { estDelegue, filiereId: filiereActive } = await annoncesRepository.findEtudiantDelegueInfo(auteur.id);
+      if (!estDelegue) {
+        throw ApiError.forbidden("Seul le délégué de la filière peut publier une annonce destinée à sa classe");
+      }
+      if (!filiereActive) {
+        throw ApiError.badRequest('Aucune inscription active trouvée pour déterminer votre filière');
+      }
+      // Un délégué ne cible toujours que sa propre filière, quoi qu'il soumette (sécurité).
+      cible = 'FILIERE';
+      filiereId = filiereActive;
+      moduleId = undefined;
+      etudiantCibleId = undefined;
+    }
+
+    let fichierMeta: { fichierUrl?: string; fichierPublicId?: string; fichierNomOriginal?: string; fichierFormat?: string; fichierTailleOctets?: number } = {};
+    if (fichier) {
+      const resourceType = fichier.mimetype.startsWith('image/') ? 'image' : 'raw';
+      const { publicId, secureUrl, bytes } = await uploadDocumentBuffer(fichier.buffer, `edusmart/annonces/${auteur.id}`, fichier.originalname, resourceType);
+      fichierMeta = {
+        fichierUrl: secureUrl,
+        fichierPublicId: publicId,
+        fichierNomOriginal: fichier.originalname,
+        fichierFormat: fichier.mimetype,
+        fichierTailleOctets: bytes,
+      };
     }
 
     const annonce = await annoncesRepository.create({
       auteurId: auteur.id,
       titre: input.titre,
       contenu: input.contenu,
-      cible: input.cible,
-      filiereId: input.filiereId,
-      moduleId: input.moduleId,
-      etudiantCibleId: input.etudiantCibleId,
+      cible,
+      filiereId,
+      moduleId,
+      etudiantCibleId,
+      ...fichierMeta,
     });
 
-    await recordAudit({ utilisateurId: auteur.id, action: 'PUBLISH', entite: 'Annonce', entiteId: annonce.id, donneesApres: { titre: input.titre, cible: input.cible } });
+    await recordAudit({ utilisateurId: auteur.id, action: 'PUBLISH', entite: 'Annonce', entiteId: annonce.id, donneesApres: { titre: input.titre, cible } });
 
     const destinataires = await annoncesRepository.findDestinatairesEtudiants({
-      type: input.cible,
-      filiereId: input.filiereId,
-      moduleId: input.moduleId,
-      etudiantCibleId: input.etudiantCibleId,
+      type: cible,
+      filiereId,
+      moduleId,
+      etudiantCibleId,
     });
 
     await notifyManyUsers(

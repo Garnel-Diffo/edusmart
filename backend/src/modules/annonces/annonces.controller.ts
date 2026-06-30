@@ -9,7 +9,10 @@ export const annoncesController = {
   }),
 
   publier: asyncHandler(async (req: Request, res: Response) => {
-    const annonce = await annoncesService.publier(req.user!, req.body);
+    const fichier = req.file
+      ? { buffer: req.file.buffer, mimetype: req.file.mimetype, size: req.file.size, originalname: req.file.originalname }
+      : undefined;
+    const annonce = await annoncesService.publier(req.user!, req.body, fichier);
     res.status(201).json({ success: true, data: annonce });
   }),
 };

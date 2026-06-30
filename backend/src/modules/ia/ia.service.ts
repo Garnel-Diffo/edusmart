@@ -1,5 +1,6 @@
 import type { TypeFicheIA } from '@prisma/client';
 import { iaRepository } from '@/modules/ia/ia.repository';
+import { documentsPersonnelsRepository } from '@/modules/documentsPersonnels/documentsPersonnels.repository';
 import { aiServiceClient, isAiServiceUnavailableError } from '@/utils/aiServiceClient';
 import { ApiError } from '@/utils/ApiError';
 import { logger } from '@/config/logger';
@@ -40,7 +41,7 @@ export const iaService = {
         type: 'CHAT',
         question,
         reponse: reponse.reponse,
-        sourcesJson: reponse.sources,
+        sourcesJson: { sources: reponse.sources, modeReponse: reponse.modeReponse },
         scoreSimilariteMoyen: reponse.sources.length ? reponse.sources.reduce((a, s) => a + s.score, 0) / reponse.sources.length : undefined,
         dureeMs,
       });
@@ -83,8 +84,15 @@ export const iaService = {
   /** UC14 - Génère une fiche de révision (traitement asynchrone côté service IA). */
   async demarrerGenerationFiche(
     user: UserContext,
-    input: { type: TypeFicheIA; matiereId?: string; moduleId?: string; coursDocumentId?: string },
+    input: { type: TypeFicheIA; matiereId?: string; moduleId?: string; coursDocumentId?: string; documentPersonnelId?: string },
   ) {
+    if (input.documentPersonnelId) {
+      const document = await documentsPersonnelsRepository.findById(input.documentPersonnelId);
+      if (!document || document.etudiantId !== user.id) {
+        throw ApiError.forbidden("Ce support personnel ne vous appartient pas");
+      }
+    }
+
     const fiche = await iaRepository.createFicheRevision({ etudiantId: user.id, ...input });
 
     try {

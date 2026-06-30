@@ -14,9 +14,10 @@ export const ficheSchema = z
     matiereId: z.string().optional(),
     moduleId: z.string().optional(),
     coursDocumentId: z.string().optional(),
+    documentPersonnelId: z.string().optional(),
   })
-  .refine((d) => d.matiereId || d.moduleId || d.coursDocumentId, {
-    message: 'Veuillez sélectionner un module, une matière ou un document',
+  .refine((d) => d.matiereId || d.moduleId || d.coursDocumentId || d.documentPersonnelId, {
+    message: 'Veuillez sélectionner un module, une matière, un document ou un support personnel',
   });
 
 export const ficheCallbackSchema = z.object({

@@ -1,6 +1,7 @@
 import { prisma } from '@/config/prisma';
 import type { Prisma, RoleUtilisateur } from '@prisma/client';
 import type { CreateUtilisateurInput } from '@/modules/admin/admin.validation';
+import { currentAnneeScolaire } from '@/utils/academicPeriod';
 
 export const adminRepository = {
   findByEmail(email: string) {
@@ -58,10 +59,19 @@ export const adminRepository = {
           data: {
             utilisateurId: utilisateur.id,
             matricule: data.matricule!,
-            niveau: data.niveau!,
             anneeEntree: data.anneeEntree!,
           },
         });
+        if (data.filiereId) {
+          await tx.inscription.create({
+            data: {
+              etudiantId: utilisateur.id,
+              filiereId: data.filiereId,
+              anneeScolaire: currentAnneeScolaire(),
+              statut: 'ACTIVE',
+            },
+          });
+        }
       } else if (data.role === 'ENSEIGNANT') {
         await tx.enseignant.create({
           data: { utilisateurId: utilisateur.id, specialite: data.specialite, grade: data.grade },
@@ -90,7 +100,11 @@ export const adminRepository = {
     });
   },
 
-  createInscription(data: { etudiantId: string; filiereId: string; anneeScolaire: string; niveau: string }) {
+  createInscription(data: { etudiantId: string; filiereId: string; anneeScolaire: string }) {
     return prisma.inscription.create({ data });
+  },
+
+  setDelegue(etudiantId: string, estDelegue: boolean) {
+    return prisma.etudiant.update({ where: { utilisateurId: etudiantId }, data: { estDelegue } });
   },
 };

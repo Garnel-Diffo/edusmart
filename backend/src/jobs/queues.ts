@@ -4,6 +4,7 @@ import { createBullMQConnection } from '@/config/redis';
 export const QUEUE_NAMES = {
   NOTIFICATIONS: 'notifications',
   INDEXATION_RAG: 'indexation-rag',
+  INDEXATION_PERSONNELLE: 'indexation-personnelle',
   GENERATION_PDF: 'generation-pdf',
 } as const;
 
@@ -27,6 +28,15 @@ export const indexationRagQueue = new Queue(QUEUE_NAMES.INDEXATION_RAG, {
     ...defaultJobOptions,
     attempts: 3,
     backoff: { type: 'fixed' as const, delay: 30 * 60_000 }, // relance à 30 min (UC3 - 6a)
+  },
+});
+
+export const indexationPersonnelleQueue = new Queue(QUEUE_NAMES.INDEXATION_PERSONNELLE, {
+  connection,
+  defaultJobOptions: {
+    ...defaultJobOptions,
+    attempts: 3,
+    backoff: { type: 'fixed' as const, delay: 30 * 60_000 },
   },
 });
 

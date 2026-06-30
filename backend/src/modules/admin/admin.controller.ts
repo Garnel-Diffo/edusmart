@@ -30,4 +30,9 @@ export const adminController = {
     const inscription = await adminService.createInscription(req.body, req.user!.id);
     res.status(201).json({ success: true, data: inscription });
   }),
+
+  setDelegue: asyncHandler(async (req: Request, res: Response) => {
+    const updated = await adminService.setDelegue(req.params.id, req.body.estDelegue, req.user!.id);
+    res.json({ success: true, data: updated });
+  }),
 };

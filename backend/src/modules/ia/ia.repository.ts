@@ -22,7 +22,14 @@ export const iaRepository = {
     return prisma.interactionIA.create({ data: data as never });
   },
 
-  createFicheRevision(data: { etudiantId: string; type: TypeFicheIA; matiereId?: string; moduleId?: string; coursDocumentId?: string }) {
+  createFicheRevision(data: {
+    etudiantId: string;
+    type: TypeFicheIA;
+    matiereId?: string;
+    moduleId?: string;
+    coursDocumentId?: string;
+    documentPersonnelId?: string;
+  }) {
     return prisma.ficheRevision.create({ data });
   },
 

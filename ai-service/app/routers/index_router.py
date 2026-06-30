@@ -17,7 +17,7 @@ async def indexer_document(payload: IndexRequest) -> IndexResponse:
     """UC3/UC4 - Indexation RAG d'un document pédagogique : extraction -> chunking -> embeddings -> pgvector."""
     try:
         contenu_binaire = await document_extractor.download_document(payload.cloudinaryUrl)
-        texte = document_extractor.extract_text(contenu_binaire, payload.format)
+        texte = await document_extractor.extract_text(contenu_binaire, payload.format)
     except Exception as exc:
         logger.exception("Échec de récupération/extraction du document %s", payload.coursDocumentId)
         raise HTTPException(status_code=502, detail="Impossible de récupérer ou d'extraire le contenu du document") from exc

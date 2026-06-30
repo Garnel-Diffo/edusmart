@@ -11,14 +11,31 @@ export const structuresService = {
       if (!filiere) throw ApiError.notFound('Filière introuvable');
       return filiere;
     },
-    async create(data: { nom: string; code: string; cycle: string; description?: string }, adminId: string) {
-      const filiere = await structuresRepository.filiere.create(data);
+    async create(
+      data: { nom: string; code: string; niveau: string; cycle: string; description?: string; salleAttitreeId?: string },
+      adminId: string,
+    ) {
+      const { salleAttitreeId, ...rest } = data;
+      const filiere = await structuresRepository.filiere.create({
+        ...rest,
+        ...(salleAttitreeId ? { salleAttitree: { connect: { id: salleAttitreeId } } } : {}),
+      });
       await recordAudit({ utilisateurId: adminId, action: 'CREATE', entite: 'Filiere', entiteId: filiere.id, donneesApres: filiere });
       return filiere;
     },
-    async update(id: string, data: Partial<{ nom: string; code: string; cycle: string; description: string }>, adminId: string) {
+    async update(
+      id: string,
+      data: Partial<{ nom: string; code: string; niveau: string; cycle: string; description: string; salleAttitreeId: string | null }>,
+      adminId: string,
+    ) {
       const avant = await structuresService.filiere.get(id);
-      const filiere = await structuresRepository.filiere.update(id, data);
+      const { salleAttitreeId, ...rest } = data;
+      const filiere = await structuresRepository.filiere.update(id, {
+        ...rest,
+        ...(salleAttitreeId !== undefined
+          ? { salleAttitree: salleAttitreeId ? { connect: { id: salleAttitreeId } } : { disconnect: true } }
+          : {}),
+      });
       await recordAudit({ utilisateurId: adminId, action: 'UPDATE', entite: 'Filiere', entiteId: id, donneesAvant: avant, donneesApres: filiere });
       return filiere;
     },

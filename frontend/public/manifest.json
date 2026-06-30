@@ -1,0 +1,11 @@
+{
+  "name": "EduSmart — Gestion scolaire intelligente",
+  "short_name": "EduSmart",
+  "description": "Plateforme de gestion scolaire intelligente avec assistant IA pédagogique",
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1F4E79",
+  "orientation": "portrait-primary",
+  "icons": []
+}

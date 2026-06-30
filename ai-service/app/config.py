@@ -17,6 +17,10 @@ class Settings(BaseSettings):
     # llama-3.3-70b-versatile est déprécié par Groq (retrait le 16/08/2026) ;
     # gpt-oss-120b est le modèle de remplacement recommandé (production, plus rapide).
     groq_model: str = "openai/gpt-oss-120b"
+    # Modèle multimodal (vision) utilisé pour l'OCR des supports personnels uploadés
+    # en image (UC14 étendu) : transcription directe via LLM, pas de dépendance
+    # Tesseract/EasyOCR. Vérifié manuellement : transcrit fidèlement le texte d'une image.
+    groq_vision_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
 
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     embedding_dimensions: int = 384

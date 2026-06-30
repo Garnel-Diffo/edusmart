@@ -14,6 +14,36 @@ def get_client() -> AsyncGroq:
     return _client
 
 
+async def transcrire_image(image_url: str) -> str:
+    """
+    OCR via LLM multimodal (UC14 étendu, supports personnels en image) : envoie
+    l'image au modèle vision Groq et lui demande une transcription fidèle du
+    texte visible, sans interprétation ni résumé.
+    """
+    client = get_client()
+    completion = await client.chat.completions.create(
+        model=settings.groq_vision_model,
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "Transcris fidèlement et intégralement tout le texte visible sur cette image "
+                            "(notes manuscrites ou imprimées). Ne résume pas, ne commente pas, ne traduis pas : "
+                            "renvoie uniquement le texte tel qu'il apparaît."
+                        ),
+                    },
+                    {"type": "image_url", "image_url": {"url": image_url}},
+                ],
+            },
+        ],
+        max_tokens=2048,
+    )
+    return completion.choices[0].message.content or ""
+
+
 async def generer_completion(
     system_prompt: str,
     user_prompt: str,

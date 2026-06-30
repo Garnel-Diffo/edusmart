@@ -24,6 +24,15 @@ export const annoncesRepository = {
     return prisma.inscription.findMany({ where: { etudiantId, statut: 'ACTIVE' }, select: { filiereId: true } });
   },
 
+  /** Statut délégué + filière active de l'étudiant (UC18 étendu : annonces de classe). */
+  async findEtudiantDelegueInfo(etudiantId: string) {
+    const etudiant = await prisma.etudiant.findUnique({
+      where: { utilisateurId: etudiantId },
+      select: { estDelegue: true, inscriptions: { where: { statut: 'ACTIVE' }, orderBy: { createdAt: 'desc' }, select: { filiereId: true }, take: 1 } },
+    });
+    return { estDelegue: etudiant?.estDelegue ?? false, filiereId: etudiant?.inscriptions[0]?.filiereId ?? null };
+  },
+
   /** Modules et filière(s) couverts par les matières enseignées par l'enseignant. */
   findScopeEnseignant(enseignantId: string) {
     return prisma.matiere.findMany({

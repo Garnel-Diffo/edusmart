@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 
 from app.config import settings
 from app.db import connect_db, disconnect_db
-from app.routers import chat_router, fiche_router, index_router, search_router
+from app.routers import chat_router, fiche_router, index_personnel_router, index_router, search_router
 from app.services import embeddings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -33,6 +33,7 @@ app = FastAPI(
 )
 
 app.include_router(index_router.router)
+app.include_router(index_personnel_router.router)
 app.include_router(chat_router.router)
 app.include_router(search_router.router)
 app.include_router(fiche_router.router)

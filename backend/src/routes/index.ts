@@ -11,6 +11,7 @@ import messagerieRoutes from '@/modules/messagerie/messagerie.routes';
 import notificationsRoutes from '@/modules/notifications/notifications.routes';
 import statsRoutes from '@/modules/stats/stats.routes';
 import iaRoutes from '@/modules/ia/ia.routes';
+import documentsPersonnelsRoutes from '@/modules/documentsPersonnels/documentsPersonnels.routes';
 
 const router = Router();
 
@@ -28,5 +29,6 @@ router.use('/messages', messagerieRoutes);
 router.use('/notifications', notificationsRoutes);
 router.use('/stats', statsRoutes);
 router.use('/ia', iaRoutes);
+router.use('/documents-personnels', documentsPersonnelsRoutes);
 
 export default router;

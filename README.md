@@ -1,21 +1,5 @@
+
 <div align="center">
-
-# 🎓 EduSmart
-
-### Plateforme de gestion scolaire intelligente
-
-*Cours, emplois du temps, notes, communication et intelligence artificielle pédagogique
-réunis dans une seule plateforme moderne, temps réel et mobile-first.*
-
-[![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](backend)
-[![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=next.js&logoColor=white)](frontend)
-[![FastAPI](https://img.shields.io/badge/FastAPI-Python_3.12-009688?logo=fastapi&logoColor=white)](ai-service)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon_(pgvector)-4169E1?logo=postgresql&logoColor=white)](#architecture)
-[![License](https://img.shields.io/badge/Licence-Académique-lightgrey)](#licence)
-
-[Démo locale](#installation-locale) · [Documentation API](backend/docs/API.md) · [Guide de contribution](CONTRIBUTING.md)
-
-</div>
 
 ---
 
@@ -25,7 +9,7 @@ réunis dans une seule plateforme moderne, temps réel et mobile-first.*
 - [Fonctionnalités](#fonctionnalités)
 - [Architecture](#architecture)
   - [Stack technique](#stack-technique)
-  - [Schéma d'architecture](#schéma-darchitecture)
+  - [Schéma d&#39;architecture](#schéma-darchitecture)
   - [Modèle de données](#modèle-de-données)
 - [Structure du dépôt](#structure-du-dépôt)
 - [Prérequis](#prérequis)
@@ -36,14 +20,14 @@ réunis dans une seule plateforme moderne, temps réel et mobile-first.*
   - [4. Service IA Python](#4-service-ia-python)
   - [5. Frontend Next.js](#5-frontend-nextjs)
   - [6. Tout lancer en une commande](#6-tout-lancer-en-une-commande)
-- [Variables d'environnement](#variables-denvironnement)
+- [Variables d&#39;environnement](#variables-denvironnement)
 - [Tests](#tests)
 - [Déploiement en production](#déploiement-en-production)
-  - [Backend & Service IA sur Render](#backend--service-ia-sur-render)
+  - [Backend &amp; Service IA sur Render](#backend--service-ia-sur-render)
   - [Frontend sur Vercel](#frontend-sur-vercel)
   - [CI/CD](#cicd)
 - [Sécurité](#sécurité)
-- [Équipe & contribution](#équipe--contribution)
+- [Équipe &amp; contribution](#équipe--contribution)
 - [Documentation complémentaire](#documentation-complémentaire)
 - [Licence](#licence)
 
@@ -66,30 +50,30 @@ en 7 domaines fonctionnels : Authentification, Gestion des cours, Emploi du temp
 
 ## Fonctionnalités
 
-| Domaine | Fonctionnalités |
-|---|---|
-| 🔐 **Authentification** | Connexion JWT (access 24h + refresh 30j rotatif), verrouillage après 5 échecs, réinitialisation de mot de passe |
-| 📚 **Cours** | Dépôt de supports (PDF/PPTX/DOCX, 50 Mo max), téléchargement par URL signée, indexation RAG automatique |
-| 🗓️ **Emploi du temps** | Consultation par filière/enseignant, gestion admin avec **détection automatique de conflits** (salle/enseignant) |
-| 📝 **Évaluation** | Saisie de notes (grille enseignant), validation/refus par l'administration, calcul de moyennes pondérées et classement, génération de bulletins et PV de délibération en PDF |
-| 🤖 **Intelligence Artificielle** | Chatbot RAG sourcé, recherche sémantique, génération de fiches de révision/résumés/quiz QCM (Groq LLM + embeddings locaux) |
-| 📢 **Communication** | Annonces ciblées (filière/module/étudiant), messagerie temps réel par canal de module (Socket.io), notifications push + email |
-| 📊 **Statistiques** | Tableaux de bord (taux de réussite, moyennes, activité plateforme), export CSV/PDF |
-| 👥 **Administration** | Gestion des utilisateurs et structures académiques (filières/modules/matières/salles), audit complet des actions sensibles |
+| Domaine                               | Fonctionnalités                                                                                                                                                                   |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 🔐**Authentification**          | Connexion JWT (access 24h + refresh 30j rotatif), verrouillage après 5 échecs, réinitialisation de mot de passe                                                                 |
+| 📚**Cours**                     | Dépôt de supports (PDF/PPTX/DOCX, 50 Mo max), téléchargement par URL signée, indexation RAG automatique                                                                       |
+| 🗓️**Emploi du temps**         | Consultation par filière/enseignant, gestion admin avec**détection automatique de conflits** (salle/enseignant)                                                            |
+| 📝**Évaluation**               | Saisie de notes (grille enseignant), validation/refus par l'administration, calcul de moyennes pondérées et classement, génération de bulletins et PV de délibération en PDF |
+| 🤖**Intelligence Artificielle** | Chatbot RAG sourcé, recherche sémantique, génération de fiches de révision/résumés/quiz QCM (Groq LLM + embeddings locaux)                                                  |
+| 📢**Communication**             | Annonces ciblées (filière/module/étudiant), messagerie temps réel par canal de module (Socket.io), notifications push + email                                                  |
+| 📊**Statistiques**              | Tableaux de bord (taux de réussite, moyennes, activité plateforme), export CSV/PDF                                                                                               |
+| 👥**Administration**            | Gestion des utilisateurs et structures académiques (filières/modules/matières/salles), audit complet des actions sensibles                                                      |
 
 ## Architecture
 
 ### Stack technique
 
-| Couche | Technologies | Hébergement |
-|---|---|---|
-| **Frontend** | Next.js 14 (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Zustand · React Query v5 · Socket.io-client · Framer Motion | Vercel |
-| **Backend** | Node.js 20 · Express · TypeScript · Prisma ORM · Socket.io (+ adaptateur Redis) · Zod · BullMQ | Render |
-| **Service IA** | Python 3.12 · FastAPI · sentence-transformers (embeddings) · Groq (LLM) · pgvector | Render |
-| **Base de données** | PostgreSQL (Neon.tech) avec extension `pgvector` | Neon |
-| **Cache & files** | Redis (Upstash) | Upstash |
-| **Stockage fichiers** | Cloudinary (documents + avatars, URLs signées) | Cloudinary |
-| **Emails** | Brevo (API transactionnelle) | Brevo |
+| Couche                      | Technologies                                                                                                                         | Hébergement |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| **Frontend**          | Next.js 14 (App Router) · TypeScript · Tailwind CSS · shadcn/ui · Zustand · React Query v5 · Socket.io-client · Framer Motion | Vercel       |
+| **Backend**           | Node.js 20 · Express · TypeScript · Prisma ORM · Socket.io (+ adaptateur Redis) · Zod · BullMQ                                 | Render       |
+| **Service IA**        | Python 3.12 · FastAPI · sentence-transformers (embeddings) · Groq (LLM) · pgvector                                               | Render       |
+| **Base de données**  | PostgreSQL (Neon.tech) avec extension`pgvector`                                                                                    | Neon         |
+| **Cache & files**     | Redis (Upstash)                                                                                                                      | Upstash      |
+| **Stockage fichiers** | Cloudinary (documents + avatars, URLs signées)                                                                                      | Cloudinary   |
+| **Emails**            | Brevo (API transactionnelle)                                                                                                         | Brevo        |
 
 ### Schéma d'architecture
 
@@ -205,7 +189,7 @@ cp frontend/.env.example frontend/.env.local
 ```
 
 > ⚠️ Ne committez **jamais** un fichier `.env*` réel — ils sont exclus via
-> `.gitignore`. Voir la section [Variables d'environnement](#variables-denvironnement)
+> `.gitignore`. Voir la section [Variables d&#39;environnement](#variables-denvironnement)
 > pour le détail de chaque clé.
 
 ### 2. Base de données (Neon + pgvector)
@@ -274,41 +258,41 @@ Le détail exhaustif de chaque variable (avec commentaires) est dans les fichier
 <details>
 <summary><strong>backend/.env</strong></summary>
 
-| Variable | Description |
-|---|---|
-| `DATABASE_URL`, `DIRECT_URL` | Connexions Neon Postgres (pooled / directe) |
-| `REDIS_URL` | Connexion Upstash Redis (`rediss://...`) |
-| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Secrets JWT (32+ caractères) |
-| `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET` | Identifiants Cloudinary |
-| `BREVO_API_KEY`, `BREVO_SENDER_EMAIL` | Envoi d'emails transactionnels |
-| `AI_SERVICE_URL`, `AI_SERVICE_SECRET` | URL + secret partagé avec le service IA |
-| `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` | Origine(s) autorisée(s) pour le CORS |
-| `MAX_LOGIN_ATTEMPTS`, `LOCKOUT_DURATION_MINUTES` | Politique de verrouillage de compte |
-| `ETABLISSEMENT_NOM`, `SEUIL_ADMISSION` | Personnalisation des documents officiels |
+| Variable                                             | Description                                 |
+| ---------------------------------------------------- | ------------------------------------------- |
+| `DATABASE_URL`, `DIRECT_URL`                     | Connexions Neon Postgres (pooled / directe) |
+| `REDIS_URL`                                        | Connexion Upstash Redis (`rediss://...`)  |
+| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`        | Secrets JWT (32+ caractères)               |
+| `CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET`         | Identifiants Cloudinary                     |
+| `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`            | Envoi d'emails transactionnels              |
+| `AI_SERVICE_URL`, `AI_SERVICE_SECRET`            | URL + secret partagé avec le service IA    |
+| `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`           | Origine(s) autorisée(s) pour le CORS       |
+| `MAX_LOGIN_ATTEMPTS`, `LOCKOUT_DURATION_MINUTES` | Politique de verrouillage de compte         |
+| `ETABLISSEMENT_NOM`, `SEUIL_ADMISSION`           | Personnalisation des documents officiels    |
 
 </details>
 
 <details>
 <summary><strong>ai-service/.env</strong></summary>
 
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | Même base Neon que le backend (accès direct pgvector) |
-| `INTERNAL_SECRET` | Doit être **identique** à `AI_SERVICE_SECRET` du backend |
-| `BACKEND_URL` | URL du backend (callback de fin de génération de fiche) |
-| `GROQ_API_KEY`, `GROQ_MODEL` | Clé et modèle LLM Groq |
-| `EMBEDDING_MODEL`, `EMBEDDING_DIMENSIONS` | Modèle d'embeddings (doit matcher `vector(384)`) |
-| `RAG_TOP_K`, `RAG_SIMILARITY_THRESHOLD` | Paramètres de recherche vectorielle |
+| Variable                                      | Description                                                       |
+| --------------------------------------------- | ----------------------------------------------------------------- |
+| `DATABASE_URL`                              | Même base Neon que le backend (accès direct pgvector)           |
+| `INTERNAL_SECRET`                           | Doit être**identique** à `AI_SERVICE_SECRET` du backend |
+| `BACKEND_URL`                               | URL du backend (callback de fin de génération de fiche)         |
+| `GROQ_API_KEY`, `GROQ_MODEL`              | Clé et modèle LLM Groq                                          |
+| `EMBEDDING_MODEL`, `EMBEDDING_DIMENSIONS` | Modèle d'embeddings (doit matcher`vector(384)`)                |
+| `RAG_TOP_K`, `RAG_SIMILARITY_THRESHOLD`   | Paramètres de recherche vectorielle                              |
 
 </details>
 
 <details>
 <summary><strong>frontend/.env.local</strong></summary>
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_BACKEND_URL` | URL publique du backend (API REST) |
-| `NEXT_PUBLIC_SOCKET_URL` | URL du serveur Socket.io (= backend) |
+| Variable                    | Description                          |
+| --------------------------- | ------------------------------------ |
+| `NEXT_PUBLIC_BACKEND_URL` | URL publique du backend (API REST)   |
+| `NEXT_PUBLIC_SOCKET_URL`  | URL du serveur Socket.io (= backend) |
 
 </details>
 
@@ -348,6 +332,7 @@ Le fichier [`render.yaml`](render.yaml) décrit les deux services en *Blueprint*
 
 > **Déploiement 100% gratuit.** Les deux services utilisent le plan **Free** de Render
 > (`plan: free` dans `render.yaml`) — aucun coût. Deux compromis à connaître :
+>
 > - **Mise en veille** : un service gratuit s'endort après 15 min sans requête et met
 >   ~1 minute à se réveiller au prochain appel. Avant une démo, ouvrez les deux URLs
 >   (`/api/health` et `/health`) quelques minutes à l'avance pour les "réveiller".
@@ -400,11 +385,11 @@ Projet réalisé par une équipe de 3 — voir [CONTRIBUTING.md](CONTRIBUTING.md
 détail de la répartition, le workflow Git (branches, commits, Pull Requests) et les
 fiches de tâches assignées à chaque contributeur.
 
-| Membre | Rôle |
-|---|---|
-| DIFFO KENNE Garnel | Chef de projet, Fullstack (backend, service IA, DevOps, majorité frontend) |
-| MBIDA NGUELE Paul Loïc | Frontend — feature Annonces |
-| MEZAGO Wilfried Aymar | Frontend — feature Messagerie temps réel |
+| Membre                  | Rôle                                                             |
+| ----------------------- | ----------------------------------------------------------------- |
+| DIFFO KENNE Garnel      | Chef de projet, Fullstack (backend, service IA, DevOps, frontend) |
+| MBIDA NGUELE Paul Loïc | Frontend — feature Annonces                                      |
+| MEZAGO Wilfried Aymar   | Frontend — feature Messagerie temps réel                        |
 
 ## Documentation complémentaire
 

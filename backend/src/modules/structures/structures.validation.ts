@@ -3,8 +3,10 @@ import { z } from 'zod';
 export const filiereSchema = z.object({
   nom: z.string().min(2),
   code: z.string().min(2).max(20),
+  niveau: z.string().min(1),
   cycle: z.string().min(2),
   description: z.string().optional(),
+  salleAttitreeId: z.string().optional(),
 });
 
 export const moduleSchema = z.object({

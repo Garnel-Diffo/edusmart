@@ -144,6 +144,13 @@ export const authService = {
     return sanitizeUser(updated);
   },
 
+  /** "Mon profil" - édition des informations personnelles (hors email, identifiant de connexion). */
+  async updateProfile(userId: string, data: { nom?: string; prenom?: string; telephone?: string }) {
+    const updated = await authRepository.updateProfile(userId, data);
+    await recordAudit({ utilisateurId: userId, action: 'PROFILE_UPDATE', entite: 'Utilisateur', entiteId: userId, donneesApres: data });
+    return sanitizeUser(updated);
+  },
+
   async changePassword(userId: string, ancienMotDePasse: string, nouveauMotDePasse: string) {
     const user = await authRepository.findById(userId);
     if (!user) throw ApiError.notFound('Utilisateur introuvable');

@@ -4,7 +4,7 @@ import { authenticate } from '@/middlewares/authenticate';
 import { validate } from '@/middlewares/validate';
 import { loginRateLimiter } from '@/middlewares/rateLimiter';
 import { uploadAvatar } from '@/middlewares/upload';
-import { loginSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema } from '@/modules/auth/auth.validation';
+import { loginSchema, forgotPasswordSchema, resetPasswordSchema, changePasswordSchema, updateProfileSchema } from '@/modules/auth/auth.validation';
 
 const router = Router();
 
@@ -12,6 +12,7 @@ router.post('/login', loginRateLimiter, validate({ body: loginSchema }), authCon
 router.post('/refresh', authController.refresh);
 router.post('/logout', authController.logout);
 router.get('/me', authenticate, authController.me);
+router.put('/me', authenticate, validate({ body: updateProfileSchema }), authController.updateProfile);
 router.post('/forgot-password', loginRateLimiter, validate({ body: forgotPasswordSchema }), authController.forgotPassword);
 router.post('/reset-password', validate({ body: resetPasswordSchema }), authController.resetPassword);
 router.post('/change-password', authenticate, validate({ body: changePasswordSchema }), authController.changePassword);

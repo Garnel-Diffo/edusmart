@@ -9,6 +9,7 @@ interface CreateCoursDocumentInput {
   format: FormatDocument;
   tailleOctets: number;
   cloudinaryPublicId: string;
+  cloudinaryVersion: number;
   cloudinaryUrl: string;
 }
 

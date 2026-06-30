@@ -15,6 +15,18 @@ class IndexResponse(BaseModel):
     statut: Literal["INDEXE"]
 
 
+class IndexPersonnelRequest(BaseModel):
+    documentPersonnelId: str
+    cloudinaryUrl: str
+    format: Literal["PDF", "PPTX", "DOCX", "IMAGE"]
+
+
+class IndexPersonnelResponse(BaseModel):
+    documentPersonnelId: str
+    nbChunks: int
+    statut: Literal["INDEXE"]
+
+
 class ChatRequest(BaseModel):
     question: str
     filiereId: str
@@ -28,9 +40,13 @@ class SourceDocument(BaseModel):
     score: float
 
 
+ModeReponse = Literal["COURS", "CONNAISSANCES_GENERALES"]
+
+
 class ChatResponse(BaseModel):
     reponse: str
     sources: list[SourceDocument]
+    modeReponse: ModeReponse = "COURS"
     modeDegrade: bool = False
 
 
@@ -49,6 +65,7 @@ class FicheRequest(BaseModel):
     matiereId: str | None = None
     moduleId: str | None = None
     coursDocumentId: str | None = None
+    documentPersonnelId: str | None = None
 
 
 class FicheAcceptedResponse(BaseModel):

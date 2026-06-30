@@ -27,7 +27,7 @@ export function startIndexationWorker(): Worker {
       if (!document) throw ApiError.notFound('Document introuvable pour indexation');
 
       await coursService.marquerStatutIndexation(document.id, 'EN_COURS');
-      const cloudinaryUrl = buildSignedDownloadUrl(document.cloudinaryPublicId);
+      const cloudinaryUrl = buildSignedDownloadUrl(document.cloudinaryPublicId, document.cloudinaryVersion);
       await aiServiceClient.declencherIndexation({ coursDocumentId: document.id, cloudinaryUrl, format: document.format });
       await coursService.marquerStatutIndexation(document.id, 'INDEXE');
     },
@@ -37,7 +37,11 @@ export function startIndexationWorker(): Worker {
   worker.on('failed', async (job, err) => {
     logger.error({ jobId: job?.id, err }, "Échec d'indexation RAG");
     if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) {
-      await coursService.marquerStatutIndexation(job.data.coursDocumentId, 'ERREUR');
+      // Le document peut avoir été supprimé entre la création du job et cet échec
+      // final (P2025) : ne jamais laisser ce rejet non intercepté planter le process.
+      await coursService.marquerStatutIndexation(job.data.coursDocumentId, 'ERREUR').catch((e) => {
+        logger.error({ jobId: job.id, err: e }, "Échec de la mise à jour du statut ERREUR (document probablement supprimé)");
+      });
     }
   });
 

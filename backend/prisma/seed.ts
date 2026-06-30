@@ -43,7 +43,7 @@ async function main() {
   const filiere = await prisma.filiere.upsert({
     where: { code: 'GI' },
     update: {},
-    create: { nom: 'Génie Informatique', code: 'GI', cycle: 'Ingénieur', description: 'Filière Génie Informatique' },
+    create: { nom: 'Génie Informatique', code: 'GI', niveau: '3', cycle: 'Ingénieur', description: 'Filière Génie Informatique' },
   });
 
   const filiereAIA = await prisma.filiere.upsert({
@@ -52,6 +52,7 @@ async function main() {
     create: {
       nom: 'Art et Intélligence Artificielle',
       code: 'AIA-4',
+      niveau: '4',
       cycle: 'Ingénieur',
       description: 'Filière Art Numérique - Art et Intélligence Artificielle',
     },
@@ -87,6 +88,10 @@ async function main() {
   // placeholder par une adresse réelle) sans violer l'unicité du matricule.
   const etudiantExistant = await prisma.etudiant.findUnique({ where: { matricule: '24P816' } });
 
+  if (etudiantExistant && !etudiantExistant.estDelegue) {
+    await prisma.etudiant.update({ where: { matricule: '24P816' }, data: { estDelegue: true } });
+  }
+
   const etudiantUser = etudiantExistant
     ? await prisma.utilisateur.update({
         where: { id: etudiantExistant.utilisateurId },
@@ -100,14 +105,16 @@ async function main() {
           prenom: 'Garnel',
           role: 'ETUDIANT',
           emailVerifie: true,
-          etudiant: { create: { matricule: '24P816', niveau: 'Ingénieur 3', anneeEntree: 2021 } },
+          // Délégué de démo : permet de tester directement la fonctionnalité d'annonces
+          // de classe (UC18 étendu) avec le compte étudiant principal du seed.
+          etudiant: { create: { matricule: '24P816', anneeEntree: 2021, estDelegue: true } },
         },
       });
 
   await prisma.inscription.upsert({
     where: { etudiantId_filiereId_anneeScolaire: { etudiantId: etudiantUser.id, filiereId: filiere.id, anneeScolaire: '2025-2026' } },
     update: {},
-    create: { etudiantId: etudiantUser.id, filiereId: filiere.id, anneeScolaire: '2025-2026', niveau: 'Ingénieur 3' },
+    create: { etudiantId: etudiantUser.id, filiereId: filiere.id, anneeScolaire: '2025-2026' },
   });
 
   console.log('Seed terminé :');

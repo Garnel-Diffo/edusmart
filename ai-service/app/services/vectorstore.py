@@ -1,5 +1,4 @@
 import uuid
-from datetime import UTC, datetime
 
 from app.db import get_pool
 from app.models import SourceDocument
@@ -12,16 +11,41 @@ async def delete_chunks_for_document(cours_document_id: str) -> None:
 
 async def insert_chunks(cours_document_id: str, chunks: list[str], embeddings: list[list[float]]) -> int:
     pool = get_pool()
-    now = datetime.now(UTC)
+    # created_at omis : la colonne a DEFAULT CURRENT_TIMESTAMP côté Postgres.
+    # Un datetime Python timezone-aware (UTC) ferait échouer asyncpg sur cette
+    # colonne TIMESTAMP(3) sans fuseau ("can't subtract offset-naive and
+    # offset-aware datetimes"), vérifié empiriquement.
     rows = [
-        (str(uuid.uuid4()), cours_document_id, texte, position, embedding, now)
+        (str(uuid.uuid4()), cours_document_id, texte, position, embedding)
         for position, (texte, embedding) in enumerate(zip(chunks, embeddings, strict=True))
     ]
     async with pool.acquire() as conn:
         await conn.executemany(
             """
-            INSERT INTO document_chunk (id, cours_document_id, contenu_texte, position_index, embedding, created_at)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO document_chunk (id, cours_document_id, contenu_texte, position_index, embedding)
+            VALUES ($1, $2, $3, $4, $5)
+            """,
+            rows,
+        )
+    return len(rows)
+
+
+async def delete_chunks_for_document_personnel(document_personnel_id: str) -> None:
+    pool = get_pool()
+    await pool.execute("DELETE FROM document_personnel_chunk WHERE document_personnel_id = $1", document_personnel_id)
+
+
+async def insert_chunks_personnel(document_personnel_id: str, chunks: list[str], embeddings: list[list[float]]) -> int:
+    pool = get_pool()
+    rows = [
+        (str(uuid.uuid4()), document_personnel_id, texte, position, embedding)
+        for position, (texte, embedding) in enumerate(zip(chunks, embeddings, strict=True))
+    ]
+    async with pool.acquire() as conn:
+        await conn.executemany(
+            """
+            INSERT INTO document_personnel_chunk (id, document_personnel_id, contenu_texte, position_index, embedding)
+            VALUES ($1, $2, $3, $4, $5)
             """,
             rows,
         )
@@ -32,16 +56,25 @@ MAX_CHUNKS_FICHE = 40
 
 
 async def get_chunks_for_scope(
-    matiere_id: str | None = None, module_id: str | None = None, cours_document_id: str | None = None
+    matiere_id: str | None = None,
+    module_id: str | None = None,
+    cours_document_id: str | None = None,
+    document_personnel_id: str | None = None,
 ) -> list[str]:
     """
     Récupère les chunks textuels pertinents pour la génération d'une fiche de
     révision (UC14), selon le périmètre choisi par l'étudiant (document précis,
-    matière entière ou module entier).
+    matière entière, module entier, ou document personnel uploadé par l'étudiant).
     """
     pool = get_pool()
 
-    if cours_document_id:
+    if document_personnel_id:
+        rows = await pool.fetch(
+            "SELECT contenu_texte FROM document_personnel_chunk WHERE document_personnel_id = $1 ORDER BY position_index LIMIT $2",
+            document_personnel_id,
+            MAX_CHUNKS_FICHE,
+        )
+    elif cours_document_id:
         rows = await pool.fetch(
             "SELECT contenu_texte FROM document_chunk WHERE cours_document_id = $1 ORDER BY position_index LIMIT $2",
             cours_document_id,
@@ -76,6 +109,29 @@ async def get_chunks_for_scope(
         return []
 
     return [row["contenu_texte"] for row in rows]
+
+
+async def get_perimetre_label(
+    matiere_id: str | None = None,
+    module_id: str | None = None,
+    cours_document_id: str | None = None,
+    document_personnel_id: str | None = None,
+) -> str:
+    """Nom lisible du périmètre ciblé, utilisé comme contexte minimal en génération hors-cours (UC14)."""
+    pool = get_pool()
+
+    if document_personnel_id:
+        row = await pool.fetchrow("SELECT titre FROM document_personnel WHERE id = $1", document_personnel_id)
+    elif cours_document_id:
+        row = await pool.fetchrow("SELECT titre FROM cours_document WHERE id = $1", cours_document_id)
+    elif matiere_id:
+        row = await pool.fetchrow("SELECT nom AS titre FROM matiere WHERE id = $1", matiere_id)
+    elif module_id:
+        row = await pool.fetchrow("SELECT nom AS titre FROM module WHERE id = $1", module_id)
+    else:
+        return "le sujet demandé"
+
+    return row["titre"] if row else "le sujet demandé"
 
 
 async def search_similar(filiere_id: str, query_embedding: list[float], top_k: int, threshold: float) -> list[SourceDocument]:

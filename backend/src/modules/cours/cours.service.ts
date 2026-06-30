@@ -63,7 +63,7 @@ export const coursService = {
       throw ApiError.conflict('Un document du même nom existe déjà pour cette matière', { documentId: doublon.id, demandeConfirmation: true }); // UC3 - E3
     }
 
-    const { publicId, secureUrl, bytes } = await uploadDocumentBuffer(file.buffer, `edusmart/cours/${data.matiereId}`, file.originalname);
+    const { publicId, secureUrl, bytes, version } = await uploadDocumentBuffer(file.buffer, `edusmart/cours/${data.matiereId}`, file.originalname);
 
     const document = doublon
       ? await coursRepository.replace(doublon.id, {
@@ -72,6 +72,7 @@ export const coursService = {
           format,
           tailleOctets: bytes,
           cloudinaryPublicId: publicId,
+          cloudinaryVersion: version,
           cloudinaryUrl: secureUrl,
         })
       : await coursRepository.create({
@@ -82,6 +83,7 @@ export const coursService = {
           format,
           tailleOctets: bytes,
           cloudinaryPublicId: publicId,
+          cloudinaryVersion: version,
           cloudinaryUrl: secureUrl,
         });
 
@@ -126,7 +128,7 @@ export const coursService = {
       throw ApiError.forbidden("Ce document n'appartient pas à votre filière");
     }
 
-    const url = buildSignedDownloadUrl(document.cloudinaryPublicId);
+    const url = buildSignedDownloadUrl(document.cloudinaryPublicId, document.cloudinaryVersion);
 
     await coursRepository.incrementTelechargements(coursDocumentId);
     await coursRepository.createTelechargementLog(coursDocumentId, etudiant.id, ip); // traçabilité UC2 NFR

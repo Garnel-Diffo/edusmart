@@ -23,6 +23,12 @@ export const changePasswordSchema = z.object({
   nouveauMotDePasse: resetPasswordSchema.shape.nouveauMotDePasse,
 });
 
+export const updateProfileSchema = z.object({
+  nom: z.string().min(2).optional(),
+  prenom: z.string().min(2).optional(),
+  telephone: z.string().optional(),
+});
+
 export type LoginInput = z.infer<typeof loginSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

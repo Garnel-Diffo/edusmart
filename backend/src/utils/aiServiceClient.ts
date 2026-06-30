@@ -19,6 +19,12 @@ export interface IndexationRequest {
   format: 'PDF' | 'PPTX' | 'DOCX';
 }
 
+export interface IndexationPersonnelleRequest {
+  documentPersonnelId: string;
+  cloudinaryUrl: string;
+  format: 'PDF' | 'PPTX' | 'DOCX' | 'IMAGE';
+}
+
 export interface ChatRequest {
   question: string;
   filiereId: string;
@@ -28,6 +34,7 @@ export interface ChatRequest {
 export interface ChatResponse {
   reponse: string;
   sources: { coursDocumentId: string; titre: string; extrait: string; score: number }[];
+  modeReponse: 'COURS' | 'CONNAISSANCES_GENERALES';
   modeDegrade: boolean;
 }
 
@@ -49,11 +56,16 @@ export interface FicheRequest {
   matiereId?: string;
   moduleId?: string;
   coursDocumentId?: string;
+  documentPersonnelId?: string;
 }
 
 export const aiServiceClient = {
   async declencherIndexation(payload: IndexationRequest): Promise<void> {
     await aiClient.post('/ia/index', payload, { timeout: 5_000 });
+  },
+
+  async declencherIndexationPersonnelle(payload: IndexationPersonnelleRequest): Promise<void> {
+    await aiClient.post('/ia/index-personnel', payload, { timeout: 15_000 }); // OCR vision plus lent qu'une extraction de texte classique
   },
 
   async chat(payload: ChatRequest): Promise<ChatResponse> {

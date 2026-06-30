@@ -11,7 +11,7 @@ import { logger } from '@/config/logger';
 import { parsePagination, buildPaginatedResult, type PaginationQuery } from '@/utils/pagination';
 
 const ROLE_REQUIRED_FIELDS: Record<RoleUtilisateur, (keyof CreateUtilisateurInput)[]> = {
-  ETUDIANT: ['matricule', 'niveau', 'anneeEntree'],
+  ETUDIANT: ['matricule', 'filiereId', 'anneeEntree'],
   ENSEIGNANT: [],
   ADMIN_SCOLAIRE: [],
   SUPER_ADMIN: [],
@@ -93,9 +93,25 @@ export const adminService = {
     return sanitize(updated);
   },
 
-  async createInscription(data: { etudiantId: string; filiereId: string; anneeScolaire: string; niveau: string }, adminId: string) {
+  async createInscription(data: { etudiantId: string; filiereId: string; anneeScolaire: string }, adminId: string) {
     const inscription = await adminRepository.createInscription(data);
     await recordAudit({ utilisateurId: adminId, action: 'CREATE', entite: 'Inscription', entiteId: inscription.id, donneesApres: inscription });
     return inscription;
+  },
+
+  /** Désigne ou retire le statut de délégué d'un étudiant pour sa filière (UC18 étendu). */
+  async setDelegue(etudiantId: string, estDelegue: boolean, adminId: string) {
+    const cible = await adminRepository.findById(etudiantId);
+    if (!cible || !cible.etudiant) throw ApiError.notFound('Étudiant introuvable');
+
+    const updated = await adminRepository.setDelegue(etudiantId, estDelegue);
+    await recordAudit({
+      utilisateurId: adminId,
+      action: estDelegue ? 'SET_DELEGUE' : 'UNSET_DELEGUE',
+      entite: 'Etudiant',
+      entiteId: etudiantId,
+      donneesApres: { estDelegue },
+    });
+    return updated;
   },
 };

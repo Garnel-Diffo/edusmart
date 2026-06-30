@@ -89,6 +89,15 @@ enum TypeSalle {
   @@map("type_salle")
 }
 
+enum FormatDocumentPersonnel {
+  PDF
+  PPTX
+  DOCX
+  IMAGE
+
+  @@map("format_document_personnel")
+}
+
 enum Mention {
   EXCELLENT
   TRES_BIEN
@@ -98,26 +107,6 @@ enum Mention {
   AJOURNE
 
   @@map("mention")
-}
-
-enum JourSemaine {
-  LUNDI
-  MARDI
-  MERCREDI
-  JEUDI
-  VENDREDI
-  SAMEDI
-  DIMANCHE
-
-  @@map("jour_semaine")
-}
-
-enum TypeSeance {
-  COURS
-  TD
-  TP
-
-  @@map("type_seance")
 }
 
 enum CanalNotification {
@@ -182,18 +171,19 @@ model Utilisateur {
 }
 
 model Etudiant {
-  utilisateurId String @id @map("utilisateur_id")
-  matricule     String @unique
-  niveau        String
-  anneeEntree   Int    @map("annee_entree")
+  utilisateurId String  @id @map("utilisateur_id")
+  matricule     String  @unique
+  anneeEntree   Int     @map("annee_entree")
+  estDelegue    Boolean @default(false) @map("est_delegue")
 
   utilisateur Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
 
-  inscriptions    Inscription[]
-  notes           Note[]
-  fichesRevision  FicheRevision[]
-  telechargements TelechargementLog[]
-  bulletins       BulletinSemestre[]
+  inscriptions        Inscription[]
+  notes               Note[]
+  fichesRevision      FicheRevision[]
+  telechargements     TelechargementLog[]
+  bulletins           BulletinSemestre[]
+  documentsPersonnels DocumentPersonnel[]
 
   @@map("etudiant")
 }
@@ -207,7 +197,6 @@ model Enseignant {
 
   matieres       Matiere[]
   coursDocuments CoursDocument[]
-  seances        Seance[]
   notesSaisies   Note[]          @relation("NotesSaisies")
 
   @@map("enseignant")
@@ -249,13 +238,17 @@ model RefreshToken {
 // =========================================================================
 
 model Filiere {
-  id          String   @id @default(cuid())
-  nom         String
-  code        String   @unique
-  cycle       String
-  description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id              String   @id @default(cuid())
+  nom             String
+  code            String   @unique
+  niveau          String
+  cycle           String
+  description     String?
+  salleAttitreeId String?  @map("salle_attitree_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  salleAttitree Salle? @relation(fields: [salleAttitreeId], references: [id])
 
   modules         Module[]
   inscriptions    Inscription[]
@@ -301,7 +294,6 @@ model Matiere {
 
   coursDocuments CoursDocument[]
   notes          Note[]
-  seances        Seance[]
   fichesRevision FicheRevision[]
 
   @@index([moduleId])
@@ -314,7 +306,6 @@ model Inscription {
   etudiantId    String   @map("etudiant_id")
   filiereId     String   @map("filiere_id")
   anneeScolaire String   @map("annee_scolaire")
-  niveau        String
   statut        String   @default("ACTIVE")
   createdAt     DateTime @default(now()) @map("created_at")
 
@@ -334,54 +325,33 @@ model Salle {
   batiment  String?
   createdAt DateTime  @default(now()) @map("created_at")
 
-  seances Seance[]
+  filieresAttitrees Filiere[]
 
   @@map("salle")
 }
 
 // =========================================================================
-// EMPLOI DU TEMPS (UC5, UC6)
+// EMPLOI DU TEMPS (UC5, UC6) — fichier (image/PDF) par filière + semestre
 // =========================================================================
 
 model EmploiDuTemps {
-  id            String   @id @default(cuid())
-  filiereId     String   @map("filiere_id")
-  semestre      Int
-  anneeScolaire String   @map("annee_scolaire")
-  createdById   String   @map("created_by_id")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id                 String   @id @default(cuid())
+  filiereId          String   @map("filiere_id")
+  semestre           Int // 1 ou 2 (contrainte applicative)
+  anneeScolaire      String   @map("annee_scolaire")
+  titre              String?
+  format             String // "PDF" | "IMAGE"
+  cloudinaryPublicId String   @map("cloudinary_public_id")
+  cloudinaryUrl      String   @map("cloudinary_url")
+  createdById        String   @map("created_by_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
   filiere   Filiere       @relation(fields: [filiereId], references: [id])
   createdBy AdminScolaire @relation(fields: [createdById], references: [utilisateurId])
-  seances   Seance[]
 
   @@unique([filiereId, semestre, anneeScolaire])
   @@map("emploi_du_temps")
-}
-
-model Seance {
-  id              String      @id @default(cuid())
-  emploiDuTempsId String      @map("emploi_du_temps_id")
-  matiereId       String      @map("matiere_id")
-  salleId         String      @map("salle_id")
-  enseignantId    String      @map("enseignant_id")
-  jourSemaine     JourSemaine @map("jour_semaine")
-  heureDebut      String      @map("heure_debut")
-  heureFin        String      @map("heure_fin")
-  typeSeance      TypeSeance  @default(COURS) @map("type_seance")
-  createdAt       DateTime    @default(now()) @map("created_at")
-  updatedAt       DateTime    @updatedAt @map("updated_at")
-
-  emploiDuTemps EmploiDuTemps @relation(fields: [emploiDuTempsId], references: [id], onDelete: Cascade)
-  matiere       Matiere       @relation(fields: [matiereId], references: [id])
-  salle         Salle         @relation(fields: [salleId], references: [id])
-  enseignant    Enseignant    @relation(fields: [enseignantId], references: [utilisateurId])
-
-  @@index([emploiDuTempsId])
-  @@index([salleId, jourSemaine])
-  @@index([enseignantId, jourSemaine])
-  @@map("seance")
 }
 
 // =========================================================================
@@ -397,6 +367,7 @@ model CoursDocument {
   format             FormatDocument
   tailleOctets       Int              @map("taille_octets")
   cloudinaryPublicId String           @map("cloudinary_public_id")
+  cloudinaryVersion  Int              @map("cloudinary_version")
   cloudinaryUrl      String           @map("cloudinary_url")
   statutIndexation   StatutIndexation @default(NON_INDEXE) @map("statut_indexation")
   dateDepot          DateTime         @default(now()) @map("date_depot")
@@ -446,6 +417,45 @@ model TelechargementLog {
   @@index([coursDocumentId])
   @@index([etudiantId])
   @@map("telechargement_log")
+}
+
+/// Supports personnels uploadés par l'étudiant pour ses propres révisions
+/// (UC14 étendu) — strictement privés, jamais visibles aux autres étudiants
+/// ni utilisés par le chatbot filière, isolés de CoursDocument/DocumentChunk.
+model DocumentPersonnel {
+  id                 String                  @id @default(cuid())
+  etudiantId         String                  @map("etudiant_id")
+  titre              String
+  nomFichier         String                  @map("nom_fichier")
+  format             FormatDocumentPersonnel
+  tailleOctets       Int                     @map("taille_octets")
+  cloudinaryPublicId String                  @map("cloudinary_public_id")
+  cloudinaryVersion  Int                     @map("cloudinary_version")
+  cloudinaryUrl      String                  @map("cloudinary_url")
+  statutIndexation   StatutIndexation        @default(NON_INDEXE) @map("statut_indexation")
+  createdAt          DateTime                @default(now()) @map("created_at")
+
+  etudiant Etudiant @relation(fields: [etudiantId], references: [utilisateurId], onDelete: Cascade)
+
+  chunks         DocumentPersonnelChunk[]
+  fichesRevision FicheRevision[]
+
+  @@index([etudiantId])
+  @@map("document_personnel")
+}
+
+model DocumentPersonnelChunk {
+  id                  String                      @id @default(cuid())
+  documentPersonnelId String                      @map("document_personnel_id")
+  contenuTexte        String                      @map("contenu_texte")
+  positionIndex       Int                         @map("position_index")
+  embedding           Unsupported("vector(384)")?
+  createdAt           DateTime                    @default(now()) @map("created_at")
+
+  documentPersonnel DocumentPersonnel @relation(fields: [documentPersonnelId], references: [id], onDelete: Cascade)
+
+  @@index([documentPersonnelId])
+  @@map("document_personnel_chunk")
 }
 
 // =========================================================================
@@ -526,16 +536,21 @@ model PVDeliberation {
 // =========================================================================
 
 model Annonce {
-  id              String       @id @default(cuid())
-  auteurId        String       @map("auteur_id")
-  titre           String
-  contenu         String
-  cible           CibleAnnonce
-  filiereId       String?      @map("filiere_id")
-  moduleId        String?      @map("module_id")
-  etudiantCibleId String?      @map("etudiant_cible_id")
-  datePublication DateTime     @default(now()) @map("date_publication")
-  createdAt       DateTime     @default(now()) @map("created_at")
+  id                  String       @id @default(cuid())
+  auteurId            String       @map("auteur_id")
+  titre               String
+  contenu             String
+  cible               CibleAnnonce
+  filiereId           String?      @map("filiere_id")
+  moduleId            String?      @map("module_id")
+  etudiantCibleId     String?      @map("etudiant_cible_id")
+  fichierUrl          String?      @map("fichier_url")
+  fichierPublicId     String?      @map("fichier_public_id")
+  fichierNomOriginal  String?      @map("fichier_nom_original")
+  fichierFormat       String?      @map("fichier_format")
+  fichierTailleOctets Int?         @map("fichier_taille_octets")
+  datePublication     DateTime     @default(now()) @map("date_publication")
+  createdAt           DateTime     @default(now()) @map("created_at")
 
   auteur  Utilisateur @relation("AnnoncesPubliees", fields: [auteurId], references: [id])
   filiere Filiere?    @relation(fields: [filiereId], references: [id])
@@ -600,22 +615,24 @@ model Message {
 // =========================================================================
 
 model FicheRevision {
-  id               String      @id @default(cuid())
-  etudiantId       String      @map("etudiant_id")
-  matiereId        String?     @map("matiere_id")
-  moduleId         String?     @map("module_id")
-  coursDocumentId  String?     @map("cours_document_id")
-  type             TypeFicheIA
-  contenuGenere    String?     @map("contenu_genere")
-  pdfCloudinaryUrl String?     @map("pdf_cloudinary_url")
-  statut           StatutFiche @default(EN_COURS)
-  genereLe         DateTime?   @map("genere_le")
-  createdAt        DateTime    @default(now()) @map("created_at")
+  id                  String      @id @default(cuid())
+  etudiantId          String      @map("etudiant_id")
+  matiereId           String?     @map("matiere_id")
+  moduleId            String?     @map("module_id")
+  coursDocumentId     String?     @map("cours_document_id")
+  documentPersonnelId String?     @map("document_personnel_id")
+  type                TypeFicheIA
+  contenuGenere       String?     @map("contenu_genere")
+  pdfCloudinaryUrl    String?     @map("pdf_cloudinary_url")
+  statut              StatutFiche @default(EN_COURS)
+  genereLe            DateTime?   @map("genere_le")
+  createdAt           DateTime    @default(now()) @map("created_at")
 
-  etudiant      Etudiant       @relation(fields: [etudiantId], references: [utilisateurId], onDelete: Cascade)
-  matiere       Matiere?       @relation(fields: [matiereId], references: [id])
-  module        Module?        @relation(fields: [moduleId], references: [id])
-  coursDocument CoursDocument? @relation(fields: [coursDocumentId], references: [id])
+  etudiant          Etudiant           @relation(fields: [etudiantId], references: [utilisateurId], onDelete: Cascade)
+  matiere           Matiere?           @relation(fields: [matiereId], references: [id])
+  module            Module?            @relation(fields: [moduleId], references: [id])
+  coursDocument     CoursDocument?     @relation(fields: [coursDocumentId], references: [id])
+  documentPersonnel DocumentPersonnel? @relation(fields: [documentPersonnelId], references: [id])
 
   @@index([etudiantId])
   @@map("fiche_revision")

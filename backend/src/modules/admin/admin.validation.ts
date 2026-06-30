@@ -11,7 +11,7 @@ const baseUtilisateurSchema = z.object({
 export const createUtilisateurSchema = baseUtilisateurSchema.extend({
   // Champs spécifiques Étudiant
   matricule: z.string().optional(),
-  niveau: z.string().optional(),
+  filiereId: z.string().optional(),
   anneeEntree: z.coerce.number().int().optional(),
   // Champs spécifiques Enseignant
   specialite: z.string().optional(),
@@ -29,7 +29,10 @@ export const createInscriptionSchema = z.object({
   etudiantId: z.string().min(1),
   filiereId: z.string().min(1),
   anneeScolaire: z.string().regex(/^\d{4}-\d{4}$/, 'Format attendu : AAAA-AAAA'),
-  niveau: z.string().min(1),
+});
+
+export const setDelegueSchema = z.object({
+  estDelegue: z.boolean(),
 });
 
 export type CreateUtilisateurInput = z.infer<typeof createUtilisateurSchema>;
