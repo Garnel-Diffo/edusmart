@@ -200,8 +200,7 @@ export default function LoginPage() {
               transition={{ delay: 0.28, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               className="mt-4 text-base leading-relaxed text-white/45"
             >
-              Cours, notes, emplois du temps et chatbot IA pédagogique —
-              tout votre établissement dans une seule plateforme moderne et temps réel.
+              Cours, notes, emplois du temps et chatbot IA pédagogique ------ tout votre établissement dans une seule plateforme moderne et temps réel.
             </motion.p>
 
             {/* Grid features */}
@@ -239,7 +238,7 @@ export default function LoginPage() {
             transition={{ delay: 0.9 }}
             className="text-xs text-white/20"
           >
-            © {new Date().getFullYear()} EduSmart — Plateforme de gestion scolaire intelligente
+            &copy; {new Date().getFullYear()} EduSmart ------ Plateforme de gestion scolaire intelligente
           </motion.p>
         </div>
 
