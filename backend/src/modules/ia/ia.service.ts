@@ -1,6 +1,7 @@
 import type { TypeFicheIA } from '@prisma/client';
 import { iaRepository } from '@/modules/ia/ia.repository';
 import { documentsPersonnelsRepository } from '@/modules/documentsPersonnels/documentsPersonnels.repository';
+import { parsePagination, buildPaginatedResult, type PaginationQuery } from '@/utils/pagination';
 import { aiServiceClient, isAiServiceUnavailableError } from '@/utils/aiServiceClient';
 import { ApiError } from '@/utils/ApiError';
 import { logger } from '@/config/logger';
@@ -123,6 +124,18 @@ export const iaService = {
     const { secureUrl } = await uploadDocumentBuffer(pdf, `edusmart/fiches/${etudiantId}`, `fiche-${fiche.id}`);
     await iaRepository.updateFicheRevision(fiche.id, { statut: 'PRET', pdfCloudinaryUrl: secureUrl });
     return secureUrl;
+  },
+
+  async listFiches(etudiantId: string, query: PaginationQuery) {
+    const { page, pageSize, skip, take } = parsePagination(query);
+    const [data, total] = await iaRepository.findFichesEtudiant(etudiantId, skip, take);
+    return buildPaginatedResult(data, total, page, pageSize);
+  },
+
+  async listHistoriqueChat(utilisateurId: string, query: PaginationQuery) {
+    const { page, pageSize, skip, take } = parsePagination(query);
+    const [data, total] = await iaRepository.findHistoriqueChat(utilisateurId, skip, take);
+    return buildPaginatedResult(data, total, page, pageSize);
   },
 
   /** Callback interne appelé par le service IA Python à la fin de la génération (UC14 - E1). */

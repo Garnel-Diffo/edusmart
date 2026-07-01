@@ -32,4 +32,14 @@ export const iaController = {
     await iaService.traiterCallbackFiche(req.body);
     res.json({ success: true });
   }),
+
+  listFiches: asyncHandler(async (req: Request, res: Response) => {
+    const result = await iaService.listFiches(req.user!.id, { page: Number(req.query.page), pageSize: Number(req.query.pageSize) });
+    res.json({ success: true, ...result });
+  }),
+
+  listHistoriqueChat: asyncHandler(async (req: Request, res: Response) => {
+    const result = await iaService.listHistoriqueChat(req.user!.id, { page: Number(req.query.page), pageSize: Number(req.query.pageSize) });
+    res.json({ success: true, ...result });
+  }),
 };

@@ -41,6 +41,34 @@ export const iaRepository = {
     return prisma.ficheRevision.update({ where: { id }, data: { ...data, genereLe: new Date() } });
   },
 
+  findFichesEtudiant(etudiantId: string, skip: number, take: number) {
+    return Promise.all([
+      prisma.ficheRevision.findMany({
+        where: { etudiantId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+        include: {
+          matiere: { select: { nom: true } },
+          module: { select: { nom: true } },
+        },
+      }),
+      prisma.ficheRevision.count({ where: { etudiantId } }),
+    ]);
+  },
+
+  findHistoriqueChat(utilisateurId: string, skip: number, take: number) {
+    return Promise.all([
+      prisma.interactionIA.findMany({
+        where: { utilisateurId, type: 'CHAT' },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      prisma.interactionIA.count({ where: { utilisateurId, type: 'CHAT' } }),
+    ]);
+  },
+
   /** Recherche plein texte de repli si le service IA est indisponible (UC15 - E1). */
   fullTextSearchFallback(requete: string, filiereId: string) {
     return prisma.coursDocument.findMany({

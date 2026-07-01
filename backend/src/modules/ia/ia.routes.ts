@@ -16,7 +16,9 @@ router.use(authenticate);
 router.post('/chat', authorize('ETUDIANT', 'ENSEIGNANT'), validate({ body: chatSchema }), iaController.chat);
 router.post('/search', authorize('ETUDIANT'), validate({ body: searchSchema }), iaController.search);
 router.post('/fiche', authorize('ETUDIANT'), validate({ body: ficheSchema }), iaController.genererFiche);
+router.get('/fiches', authorize('ETUDIANT'), iaController.listFiches);
 router.get('/fiche/:id', authorize('ETUDIANT'), iaController.getFiche);
 router.get('/fiche/:id/pdf', authorize('ETUDIANT'), iaController.exporterFichePdf);
+router.get('/historique', authorize('ETUDIANT', 'ENSEIGNANT'), iaController.listHistoriqueChat);
 
 export default router;

@@ -218,12 +218,15 @@ export interface ChatMessage {
 
 export interface FicheRevision {
   id: string;
+  etudiantId: string;
   type: 'FICHE_RESUME' | 'RESUME_DETAILLE' | 'QUIZ_QCM';
   statut: 'EN_COURS' | 'PRET' | 'ECHEC';
   contenuGenere: string | null;
   pdfCloudinaryUrl: string | null;
   genereLe: string | null;
   createdAt: string;
+  matiere?: { nom: string } | null;
+  module?: { nom: string } | null;
 }
 
 export interface DocumentPersonnel {

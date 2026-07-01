@@ -161,8 +161,10 @@ export const iaApi = {
   chat: (question: string) => api.post('/ia/chat', { question }),
   search: (requete: string) => api.post('/ia/search', { requete }),
   genererFiche: (data: unknown) => api.post('/ia/fiche', data),
+  listFiches: (params?: Record<string, unknown>) => api.get('/ia/fiches', { params }),
   getFiche: (id: string) => api.get(`/ia/fiche/${id}`),
   exporterFichePdf: (id: string) => api.get(`/ia/fiche/${id}/pdf`),
+  listHistoriqueChat: (params?: Record<string, unknown>) => api.get('/ia/historique', { params }),
 };
 
 export const documentsPersonnelsApi = {
