@@ -23,6 +23,7 @@ export const createUtilisateurSchema = baseUtilisateurSchema.extend({
 
 export const updateUtilisateurSchema = baseUtilisateurSchema.partial().extend({
   statutCompte: z.enum(['ACTIF', 'DESACTIVE', 'VERROUILLE']).optional(),
+  nouveauMotDePasse: z.string().min(6, 'Le mot de passe doit contenir au moins 6 caractères').optional(),
 });
 
 export const createInscriptionSchema = z.object({

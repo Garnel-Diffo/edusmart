@@ -613,7 +613,7 @@ export default function HomePage() {
             <h2 className="mb-2 text-2xl font-bold text-white sm:text-3xl">
               Prêt à moderniser votre établissement ?
             </h2>
-            <p className="mb-8 text-sm leading-relaxed text-white/68">
+            <p className="mb-8 text-sm text-[0.65rem] leading-relaxed text-white/68">
               Connectez-vous dès maintenant et découvrez une nouvelle façon de gérer votre école.
             </p>
             <Link

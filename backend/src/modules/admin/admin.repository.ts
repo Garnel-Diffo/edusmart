@@ -34,7 +34,20 @@ export const adminRepository = {
         skip,
         take,
         orderBy: { createdAt: 'desc' },
-        include: { etudiant: true, enseignant: true, adminScolaire: true },
+        include: {
+          etudiant: {
+            include: {
+              inscriptions: {
+                where: { statut: 'ACTIVE' },
+                include: { filiere: true },
+                orderBy: { createdAt: 'desc' },
+                take: 1,
+              },
+            },
+          },
+          enseignant: true,
+          adminScolaire: true,
+        },
       }),
       prisma.utilisateur.count({ where }),
     ]);

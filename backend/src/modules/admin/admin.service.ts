@@ -88,8 +88,14 @@ export const adminService = {
       }
     }
 
+    const { nouveauMotDePasse, ...champsBruts } = input;
+    const dataUpdate: Record<string, unknown> = { ...champsBruts };
+    if (nouveauMotDePasse) {
+      dataUpdate.motDePasseHash = await hashPassword(nouveauMotDePasse);
+    }
+
     const avant = sanitize(cible);
-    const updated = await adminRepository.update(id, input);
+    const updated = await adminRepository.update(id, dataUpdate);
     await recordAudit({ utilisateurId: adminId, action: 'UPDATE', entite: 'Utilisateur', entiteId: id, donneesAvant: avant, donneesApres: sanitize(updated) });
 
     return sanitize(updated);
