@@ -133,7 +133,7 @@ export const bulletinsApi = {
 
 export const annoncesApi = {
   list: (params?: Record<string, unknown>) => api.get('/annonces', { params }),
-  publier: (formData: FormData) => api.post('/annonces', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  publier: (formData: FormData) => api.post('/annonces', formData),
 };
 
 export const messagerieApi = {

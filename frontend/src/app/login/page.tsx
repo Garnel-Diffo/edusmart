@@ -200,7 +200,7 @@ export default function LoginPage() {
               transition={{ delay: 0.28, duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
               className="mt-4 text-base leading-relaxed text-white/45"
             >
-              Cours, notes, emplois du temps et chatbot IA pédagogique ------ tout votre établissement dans une seule plateforme moderne et temps réel.
+              Cours, notes, emplois du temps et chatbot IA pédagogique - tout votre établissement dans une seule plateforme moderne et temps réel.
             </motion.p>
 
             {/* Grid features */}
@@ -223,7 +223,7 @@ export default function LoginPage() {
                     </div>
                     <div>
                       <p className="text-[0.8rem] font-semibold leading-tight text-white/90">{f.label}</p>
-                      <p className="mt-1 text-[0.71rem] leading-relaxed text-white/38">{f.desc}</p>
+                      <p className="mt-1 text-[0.71rem] leading-relaxed text-white/65">{f.desc}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -238,7 +238,7 @@ export default function LoginPage() {
             transition={{ delay: 0.9 }}
             className="text-xs text-white/20"
           >
-            &copy; {new Date().getFullYear()} EduSmart ------ Plateforme de gestion scolaire intelligente
+            &copy; {new Date().getFullYear()} EduSmart - Plateforme de gestion scolaire intelligente
           </motion.p>
         </div>
 
@@ -291,7 +291,7 @@ export default function LoginPage() {
                     </div>
                     <div>
                       <h2 className="text-[1.05rem] font-bold leading-none text-white">Connexion</h2>
-                      <p className="mt-0.5 text-[0.72rem] text-white/35">Accédez à votre espace sécurisé</p>
+                      <p className="mt-0.5 text-[0.72rem] text-white/55">Accédez à votre espace sécurisé</p>
                     </div>
                   </div>
                   {/* Séparateur dégradé */}

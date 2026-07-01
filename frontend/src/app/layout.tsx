@@ -3,7 +3,7 @@ import './globals.css';
 import { Providers } from '@/components/providers';
 
 export const metadata: Metadata = {
-  title: { template: '%s | EduSmart', default: 'EduSmart — Gestion scolaire intelligente' },
+  title: { template: '%s | EduSmart', default: 'EduSmart - Gestion scolaire intelligente' },
   description: "Plateforme numérique unifiée pour la gestion académique et l'intelligence artificielle pédagogique.",
   manifest: '/manifest.json',
   // Next.js App Router détecte automatiquement src/app/icon.tsx → <link rel="icon">

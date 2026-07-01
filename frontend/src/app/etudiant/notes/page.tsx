@@ -22,7 +22,7 @@ function moyenneColor(moyenne: number): string {
 }
 
 export default function EtudiantNotesPage() {
-  const [semestre, setSemestre] = useState(8);
+  const [semestre, setSemestre] = useState(1);
   const [anneeScolaire, setAnneeScolaire] = useState(currentAnneeScolaire());
 
   const { data, isLoading } = useQuery({

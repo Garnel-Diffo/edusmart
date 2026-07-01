@@ -372,7 +372,7 @@ export default function HomePage() {
                 transition={{ delay: 0.26, duration: 0.65, ease: EASE }}
                 className="mt-4 max-w-md text-base leading-relaxed text-white/70"
               >
-                Cours, emplois du temps, bulletins de notes et chatbot IA pédagogique ------ tout votre établissement unifié dans une seule plateforme moderne, temps réel.
+                Cours, emplois du temps, bulletins de notes et chatbot IA pédagogique - tout votre établissement unifié dans une seule plateforme moderne, temps réel.
               </motion.p>
 
               <motion.div
@@ -540,7 +540,7 @@ export default function HomePage() {
               transition={{ delay: 0.16, duration: 0.55, ease: EASE }}
               className="mt-3 text-base leading-relaxed text-white/65"
             >
-              Administrateur, enseignant ou étudiant ------ chaque profil dispose d&apos;un espace dédié avec les outils adaptés à ses besoins.
+              Administrateur, enseignant ou étudiant - chaque profil dispose d&apos;un espace dédié avec les outils adaptés à ses besoins.
             </motion.p>
           </div>
 
@@ -649,7 +649,7 @@ export default function HomePage() {
             <span className="text-sm font-semibold text-white/70">EduSmart</span>
           </div>
           <p className="text-[0.68rem] text-white/40">
-            &copy; {new Date().getFullYear()} EduSmart ------ Plateforme de gestion scolaire intelligente
+            &copy; {new Date().getFullYear()} EduSmart - Plateforme de gestion scolaire intelligente
           </p>
           <Link
             href="/login"
