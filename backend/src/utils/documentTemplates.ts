@@ -1,4 +1,4 @@
-﻿const BRAND_COLOR = '#1F4E79';
+const BRAND_COLOR = '#1F4E79';
 
 function baseStyles(): string {
   return `

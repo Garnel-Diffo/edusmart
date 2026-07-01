@@ -1,4 +1,4 @@
-﻿// EduSmart - Schéma de données PostgreSQL (Neon) via Prisma ORM
+// EduSmart - Schéma de données PostgreSQL (Neon) via Prisma ORM
 // Référence : Cahier d'Analyse (classes métier) + Cahier de Conception (correspondance
 // Classe UML -> Table -> Service -> Repository -> Endpoint).
 // Convention : modèles/champs en camelCase (idiomatique Prisma/TS), tables/colonnes

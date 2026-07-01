@@ -13,6 +13,7 @@ router.use(authenticate);
 router.get('/etudiant', authorize('ETUDIANT'), validate({ query: consulterNotesQuerySchema }), notesController.consulterEtudiant);
 router.get('/bulletin', authorize('ETUDIANT'), bulletinsController.monBulletin);
 router.get('/etudiants', authorize('ENSEIGNANT'), notesController.listEtudiants);
+router.get('/session', authorize('ENSEIGNANT'), notesController.getNotesSession);
 router.post('/saisir', authorize('ENSEIGNANT'), validate({ body: saisirNotesSchema }), notesController.saisir);
 router.get('/sessions-en-attente', authorize('ADMIN_SCOLAIRE', 'SUPER_ADMIN'), notesController.listSessionsEnAttente);
 router.put('/valider', authorize('ADMIN_SCOLAIRE', 'SUPER_ADMIN'), validate({ body: validerNotesSchema }), notesController.valider);

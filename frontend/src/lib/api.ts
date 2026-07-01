@@ -1,4 +1,4 @@
-﻿import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:4000';
 
@@ -121,6 +121,8 @@ export const notesApi = {
   bulletin: (semestre: number, anneeScolaire: string) =>
     api.get('/notes/bulletin', { params: { semestre, anneeScolaire } }),
   listEtudiants: (matiereId: string) => api.get('/notes/etudiants', { params: { matiereId } }),
+  session: (matiereId: string, typeEvaluation: string, semestre: number, anneeScolaire: string) =>
+    api.get('/notes/session', { params: { matiereId, typeEvaluation, semestre, anneeScolaire } }),
   saisir: (data: unknown) => api.post('/notes/saisir', data),
   sessionsEnAttente: () => api.get('/notes/sessions-en-attente'),
   valider: (data: unknown) => api.put('/notes/valider', data),

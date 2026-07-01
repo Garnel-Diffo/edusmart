@@ -1,4 +1,4 @@
-﻿# Référence API - Backend EduSmart
+# Référence API - Backend EduSmart
 
 Base URL locale : `http://localhost:4000/api`
 Base URL production : `https://<votre-service>.onrender.com/api`

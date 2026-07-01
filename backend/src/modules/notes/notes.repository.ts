@@ -84,6 +84,14 @@ export const notesRepository = {
     });
   },
 
+  /** Notes saisies par un enseignant pour une session précise (matière+type+semestre+année). */
+  findNotesSession(enseignantId: string, matiereId: string, typeEvaluation: TypeEvaluation, semestre: number, anneeScolaire: string) {
+    return prisma.note.findMany({
+      where: { matiereId, typeEvaluation, semestre, anneeScolaire, saisieParId: enseignantId },
+      select: { etudiantId: true, valeur: true, coefficientEvaluation: true, estValide: true, commentaireRefus: true },
+    });
+  },
+
   findEnseignantMatiereIds(enseignantId: string) {
     return prisma.matiere.findMany({ where: { enseignantId }, select: { id: true } });
   },

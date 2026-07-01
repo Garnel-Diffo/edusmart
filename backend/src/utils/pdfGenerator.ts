@@ -1,4 +1,4 @@
-﻿import puppeteer, { type Browser } from 'puppeteer';
+import puppeteer, { type Browser } from 'puppeteer';
 import { logger } from '@/config/logger';
 
 let browserInstance: Browser | null = null;

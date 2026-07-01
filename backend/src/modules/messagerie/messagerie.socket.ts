@@ -1,4 +1,4 @@
-﻿import type { Server, Socket } from 'socket.io';
+import type { Server, Socket } from 'socket.io';
 import { messagerieService } from '@/modules/messagerie/messagerie.service';
 import { rooms, SOCKET_EVENTS } from '@/sockets/rooms';
 import { logger } from '@/config/logger';

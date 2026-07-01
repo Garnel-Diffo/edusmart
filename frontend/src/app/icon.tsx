@@ -1,4 +1,4 @@
-﻿import { ImageResponse } from 'next/og';
+import { ImageResponse } from 'next/og';
 
 // Favicon affiché dans l'onglet du navigateur (32 × 32 px).
 // Next.js App Router sert ce fichier comme <link rel="icon"> automatiquement.

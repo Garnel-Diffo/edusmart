@@ -1,4 +1,4 @@
-﻿# Guide de contribution - EduSmart
+# Guide de contribution - EduSmart
 
 Ce document explique comment contribuer au dépôt EduSmart : workflow Git, conventions,
 et fiches de tâches détaillées pour les membres de l'équipe.

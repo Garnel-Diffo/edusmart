@@ -90,6 +90,25 @@ export const notesService = {
     );
   },
 
+  /** Retourne les notes saisies par l'enseignant pour une session donnée avec leur statut. */
+  async getNotesSession(enseignantId: string, matiereId: string, typeEvaluation: TypeEvaluation, semestre: number, anneeScolaire: string) {
+    const matiere = await notesRepository.findMatiereAvecModule(matiereId);
+    if (!matiere) throw ApiError.notFound('Matière introuvable');
+    if (matiere.enseignantId !== enseignantId) throw ApiError.forbidden("Vous n'êtes pas affecté à cette matière");
+
+    const notes = await notesRepository.findNotesSession(enseignantId, matiereId, typeEvaluation, semestre, anneeScolaire);
+    const estValide = notes.length > 0 && notes.every((n) => n.estValide);
+    const coefficientEvaluation = notes[0] ? Number(notes[0].coefficientEvaluation) : 1;
+    const commentaireRefus = notes.find((n) => n.commentaireRefus)?.commentaireRefus ?? null;
+
+    return {
+      notes: notes.map((n) => ({ etudiantId: n.etudiantId, valeur: Number(n.valeur) })),
+      estValide,
+      coefficientEvaluation,
+      commentaireRefus,
+    };
+  },
+
   /** UC10 - étape 2 : liste des sessions en attente de validation pour l'admin. */
   listSessionsEnAttenteValidation() {
     return notesRepository.findSessionsEnAttenteValidation();

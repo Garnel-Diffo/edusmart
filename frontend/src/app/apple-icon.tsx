@@ -1,4 +1,4 @@
-﻿import { ImageResponse } from 'next/og';
+import { ImageResponse } from 'next/og';
 
 // Icône Apple (180 × 180 px) - affichée lors de l'ajout à l'écran d'accueil iOS/iPadOS.
 // Next.js App Router sert ce fichier comme <link rel="apple-touch-icon"> automatiquement.
