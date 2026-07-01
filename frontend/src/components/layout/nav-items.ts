@@ -13,6 +13,7 @@ import {
   Building2,
   BarChart3,
   FileBadge,
+  ShieldCheck,
   type LucideIcon,
 } from 'lucide-react';
 import type { Role } from '@/types';
@@ -52,6 +53,7 @@ export const NAV_ITEMS: Record<Role, NavItem[]> = {
     { label: 'Documents officiels', href: '/admin/bulletins', icon: FileBadge },
     { label: 'Annonces', href: '/admin/annonces', icon: Megaphone },
     { label: 'Statistiques', href: '/admin/stats', icon: BarChart3 },
+    { label: "Journal d'audit", href: '/admin/audit', icon: ShieldCheck },
   ],
   SUPER_ADMIN: [],
   DIRECTION: [

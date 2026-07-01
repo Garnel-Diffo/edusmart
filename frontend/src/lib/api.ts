@@ -200,4 +200,8 @@ export const adminApi = {
       create: (data: unknown) => api.post('/structures/salles', data),
     },
   },
+  audit: {
+    list: (params?: Record<string, unknown>) => api.get('/admin/audit', { params }),
+    filterOptions: () => api.get('/admin/audit/filter-options'),
+  },
 };
