@@ -256,7 +256,7 @@ export default function FichesPage() {
               onClick={() => setShowHistorique((v) => !v)}
               className="flex w-full items-center justify-between rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-accent"
             >
-              <span className="flex items-center gap-2"><History className="h-4 w-4" /> Mes fiches ({historique?.total ?? 0})</span>
+              <span className="flex items-center gap-2"><History className="h-4 w-4" /> Mes fiches ({historique?.pagination.total ?? 0})</span>
               {showHistorique ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
             </button>
 
