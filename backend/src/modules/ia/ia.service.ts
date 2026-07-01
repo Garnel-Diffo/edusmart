@@ -138,7 +138,7 @@ export const iaService = {
       type: data.statut === 'PRET' ? 'FICHE_PRETE' : 'FICHE_ECHEC',
       titre: data.statut === 'PRET' ? 'Votre fiche de révision est prête' : 'Échec de génération de fiche',
       contenu: data.statut === 'PRET' ? 'Votre fiche de révision a été générée avec succès.' : 'La génération de votre fiche a échoué, veuillez réessayer.',
-      lien: `/ia/fiches/${fiche.id}`,
+      lien: '/etudiant/fiches',
     });
 
     return fiche;

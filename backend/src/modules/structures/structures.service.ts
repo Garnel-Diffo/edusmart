@@ -1,4 +1,5 @@
 import { structuresRepository } from '@/modules/structures/structures.repository';
+import { prisma } from '@/config/prisma';
 import { recordAudit } from '@/utils/audit';
 import { ApiError } from '@/utils/ApiError';
 import type { TypeSalle } from '@prisma/client';
@@ -61,6 +62,8 @@ export const structuresService = {
         creditsEcts: data.creditsEcts,
         filiere: { connect: { id: data.filiereId } },
       });
+      // Crée automatiquement le canal de discussion associé (UC19).
+      await prisma.canalDiscussion.create({ data: { moduleId: created.id, nom: `Canal - ${data.nom}` } });
       await recordAudit({ utilisateurId: adminId, action: 'CREATE', entite: 'Module', entiteId: created.id, donneesApres: created });
       return created;
     },

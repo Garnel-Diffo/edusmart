@@ -113,7 +113,7 @@ export const coursService = {
         type: 'NOUVEAU_COURS',
         titre: 'Nouveau support de cours disponible',
         contenu: `Le document "${titre}" a été déposé.`,
-        lien: `/cours/${coursDocumentId}`,
+        lien: '/etudiant/cours',
       })),
     );
   },

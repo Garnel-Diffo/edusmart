@@ -115,7 +115,7 @@ export const bulletinsService = {
         type: 'BULLETIN_DISPONIBLE',
         titre: 'Votre bulletin de semestre est disponible',
         contenu: `Le bulletin du semestre ${semestre} (${anneeScolaire}) a été publié.`,
-        lien: '/notes/bulletin',
+        lien: '/etudiant/notes',
         envoyerEmail: true,
       })),
     );

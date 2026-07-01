@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { Save, GraduationCap, CheckCircle2, Clock, AlertTriangle, Pencil } from 'lucide-react';
@@ -35,7 +36,8 @@ const TYPES_EVALUATION = [
 
 export default function EnseignantNotesPage() {
   const user = useAuthStore((s) => s.user);
-  const [matiereId, setMatiereId] = useState('');
+  const searchParams = useSearchParams();
+  const [matiereId, setMatiereId] = useState(searchParams.get('matiereId') ?? '');
   const [typeEvaluation, setTypeEvaluation] = useState('CONTROLE');
   const [semestre, setSemestre] = useState(1);
   const [anneeScolaire, setAnneeScolaire] = useState(currentAnneeScolaire());

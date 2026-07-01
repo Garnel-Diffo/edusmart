@@ -150,7 +150,7 @@ export const annoncesService = {
         type: 'NOUVELLE_ANNONCE',
         titre: `Nouvelle annonce : ${input.titre}`,
         contenu: input.contenu.slice(0, 200),
-        lien: `/annonces/${annonce.id}`,
+        lien: `/etudiant/annonces/${annonce.id}`,
       })),
     );
 

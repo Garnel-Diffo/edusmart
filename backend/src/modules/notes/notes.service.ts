@@ -85,7 +85,7 @@ export const notesService = {
         type: 'NOTES_A_VALIDER',
         titre: 'Notes en attente de validation',
         contenu: `De nouvelles notes ont été saisies pour la matière "${matiereNom}" et attendent votre validation.`,
-        lien: `/admin/notes/validation?matiereId=${matiereId}`,
+        lien: '/admin/notes',
       })),
     );
   },
@@ -129,7 +129,7 @@ export const notesService = {
         type: 'NOTES_VALIDEES',
         titre: 'Vos notes sont disponibles',
         contenu: 'Des notes viennent d\'être validées et publiées.',
-        lien: '/notes',
+        lien: '/etudiant/notes',
         envoyerEmail: true,
       })),
     );

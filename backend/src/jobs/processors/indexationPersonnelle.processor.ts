@@ -36,7 +36,7 @@ export function startIndexationPersonnelleWorker(): Worker {
       });
       await documentsPersonnelsService.marquerStatutIndexation(document.id, 'INDEXE');
     },
-    { connection: createBullMQConnection(), concurrency: 3 },
+    { connection: createBullMQConnection(), concurrency: 3, lockDuration: 180_000 },
   );
 
   worker.on('failed', async (job, err) => {

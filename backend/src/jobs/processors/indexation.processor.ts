@@ -31,7 +31,7 @@ export function startIndexationWorker(): Worker {
       await aiServiceClient.declencherIndexation({ coursDocumentId: document.id, cloudinaryUrl, format: document.format });
       await coursService.marquerStatutIndexation(document.id, 'INDEXE');
     },
-    { connection: createBullMQConnection(), concurrency: 5 },
+    { connection: createBullMQConnection(), concurrency: 5, lockDuration: 180_000 },
   );
 
   worker.on('failed', async (job, err) => {

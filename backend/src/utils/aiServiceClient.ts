@@ -61,7 +61,7 @@ export interface FicheRequest {
 
 export const aiServiceClient = {
   async declencherIndexation(payload: IndexationRequest): Promise<void> {
-    await aiClient.post('/ia/index', payload, { timeout: 5_000 });
+    await aiClient.post('/ia/index', payload, { timeout: 120_000 });
   },
 
   async declencherIndexationPersonnelle(payload: IndexationPersonnelleRequest): Promise<void> {
