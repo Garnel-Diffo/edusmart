@@ -175,6 +175,7 @@ export const adminApi = {
     create: (data: unknown) => api.post('/admin/utilisateurs', data),
     update: (id: string, data: unknown) => api.put(`/admin/utilisateurs/${id}`, data),
     setDelegue: (id: string, estDelegue: boolean) => api.put(`/admin/utilisateurs/${id}/delegue`, { estDelegue }),
+    changerFiliere: (id: string, filiereId: string) => api.put(`/admin/utilisateurs/${id}/filiere`, { filiereId }),
   },
   inscriptions: {
     create: (data: unknown) => api.post('/admin/inscriptions', data),

@@ -3,7 +3,7 @@ import { authenticate } from '@/middlewares/authenticate';
 import { authorize } from '@/middlewares/authorize';
 import { validate } from '@/middlewares/validate';
 import { adminController } from '@/modules/admin/admin.controller';
-import { createUtilisateurSchema, updateUtilisateurSchema, createInscriptionSchema, setDelegueSchema } from '@/modules/admin/admin.validation';
+import { createUtilisateurSchema, updateUtilisateurSchema, createInscriptionSchema, setDelegueSchema, changerFiliereSchema } from '@/modules/admin/admin.validation';
 
 const router = Router();
 
@@ -14,6 +14,7 @@ router.get('/utilisateurs/:id', adminController.getUtilisateur);
 router.post('/utilisateurs', validate({ body: createUtilisateurSchema }), adminController.createUtilisateur);
 router.put('/utilisateurs/:id', validate({ body: updateUtilisateurSchema }), adminController.updateUtilisateur);
 router.put('/utilisateurs/:id/delegue', validate({ body: setDelegueSchema }), adminController.setDelegue);
+router.put('/utilisateurs/:id/filiere', validate({ body: changerFiliereSchema }), adminController.changerFiliere);
 
 router.post('/inscriptions', validate({ body: createInscriptionSchema }), adminController.createInscription);
 

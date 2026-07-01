@@ -9,6 +9,7 @@ import { welcomeAccountEmail } from '@/utils/emailTemplates';
 import { env } from '@/config/env';
 import { logger } from '@/config/logger';
 import { parsePagination, buildPaginatedResult, type PaginationQuery } from '@/utils/pagination';
+import { currentAnneeScolaire } from '@/utils/academicPeriod';
 
 const ROLE_REQUIRED_FIELDS: Record<RoleUtilisateur, (keyof CreateUtilisateurInput)[]> = {
   ETUDIANT: ['matricule', 'filiereId', 'anneeEntree'],
@@ -104,6 +105,22 @@ export const adminService = {
   async createInscription(data: { etudiantId: string; filiereId: string; anneeScolaire: string }, adminId: string) {
     const inscription = await adminRepository.createInscription(data);
     await recordAudit({ utilisateurId: adminId, action: 'CREATE', entite: 'Inscription', entiteId: inscription.id, donneesApres: inscription });
+    return inscription;
+  },
+
+  /** Change la filière active d'un étudiant : désactive l'ancienne inscription et crée une nouvelle. */
+  async changerFiliere(etudiantId: string, filiereId: string, adminId: string) {
+    const cible = await adminRepository.findById(etudiantId);
+    if (!cible || !cible.etudiant) throw ApiError.notFound('Étudiant introuvable');
+
+    const inscription = await adminRepository.changerFiliere(etudiantId, filiereId, currentAnneeScolaire());
+    await recordAudit({
+      utilisateurId: adminId,
+      action: 'CHANGER_FILIERE',
+      entite: 'Inscription',
+      entiteId: inscription.id,
+      donneesApres: { filiereId, anneeScolaire: inscription.anneeScolaire },
+    });
     return inscription;
   },
 

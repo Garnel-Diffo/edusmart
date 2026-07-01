@@ -36,5 +36,9 @@ export const setDelegueSchema = z.object({
   estDelegue: z.boolean(),
 });
 
+export const changerFiliereSchema = z.object({
+  filiereId: z.string().min(1, 'La filière est requise'),
+});
+
 export type CreateUtilisateurInput = z.infer<typeof createUtilisateurSchema>;
 export type UpdateUtilisateurInput = z.infer<typeof updateUtilisateurSchema>;

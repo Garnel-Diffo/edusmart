@@ -35,4 +35,9 @@ export const adminController = {
     const updated = await adminService.setDelegue(req.params.id, req.body.estDelegue, req.user!.id);
     res.json({ success: true, data: updated });
   }),
+
+  changerFiliere: asyncHandler(async (req: Request, res: Response) => {
+    const inscription = await adminService.changerFiliere(req.params.id, req.body.filiereId, req.user!.id);
+    res.json({ success: true, data: inscription });
+  }),
 };

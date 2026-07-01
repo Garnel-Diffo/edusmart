@@ -63,7 +63,7 @@ export default function AdminUtilisateursPage() {
   const [editForm, setEditForm] = useState({
     nom: '', prenom: '', email: '', telephone: '',
     statutCompte: 'ACTIF', nouveauMotDePasse: '', confirmerMotDePasse: '',
-    estDelegue: false,
+    estDelegue: false, nouvelleFiliereId: '',
   });
   const [showPwd, setShowPwd] = useState(false);
 
@@ -104,6 +104,12 @@ export default function AdminUtilisateursPage() {
     mutationFn: ({ id, estDelegue }: { id: string; estDelegue: boolean }) => adminApi.users.setDelegue(id, estDelegue),
     onSuccess: () => { toast.success('Statut de délégué mis à jour'); qc.invalidateQueries({ queryKey: ['admin', 'utilisateurs'] }); },
     onError: (err: unknown) => toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message ?? 'Échec'),
+  });
+
+  const changerFiliereMutation = useMutation({
+    mutationFn: ({ id, filiereId }: { id: string; filiereId: string }) => adminApi.users.changerFiliere(id, filiereId),
+    onSuccess: () => { toast.success('Filière mise à jour'); qc.invalidateQueries({ queryKey: ['admin', 'utilisateurs'] }); },
+    onError: (err: unknown) => toast.error((err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message ?? 'Échec du changement de filière'),
   });
 
   // ── Filtrage + tri client-side ────────────────────────────────────────
@@ -152,6 +158,7 @@ export default function AdminUtilisateursPage() {
       nouveauMotDePasse: '',
       confirmerMotDePasse: '',
       estDelegue: u.etudiant?.estDelegue ?? false,
+      nouvelleFiliereId: getFiliereActive(u)?.id ?? '',
     });
     setShowPwd(false);
   }
@@ -173,6 +180,9 @@ export default function AdminUtilisateursPage() {
 
     if (editUser?.role === 'ETUDIANT' && editForm.estDelegue !== editUser.etudiant?.estDelegue) {
       toggleDelegueMutation.mutate({ id: editUser.id, estDelegue: editForm.estDelegue });
+    }
+    if (editUser?.role === 'ETUDIANT' && editForm.nouvelleFiliereId && editForm.nouvelleFiliereId !== getFiliereActive(editUser)?.id) {
+      changerFiliereMutation.mutate({ id: editUser.id, filiereId: editForm.nouvelleFiliereId });
     }
   }
 
@@ -372,12 +382,22 @@ export default function AdminUtilisateursPage() {
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div><span className="text-muted-foreground">Matricule : </span><span className="font-mono">{editUser.etudiant.matricule}</span></div>
                   <div><span className="text-muted-foreground">Entrée : </span>{editUser.etudiant.anneeEntree}</div>
-                  {getFiliereActive(editUser) && (
-                    <div className="col-span-2">
-                      <span className="text-muted-foreground">Filière : </span>
-                      {getFiliereActive(editUser)!.nom} - {getFiliereActive(editUser)!.code}
-                    </div>
-                  )}
+                  <div className="col-span-2 space-y-1">
+                    <span className="text-muted-foreground text-xs">Filière</span>
+                    <Select
+                      value={editForm.nouvelleFiliereId}
+                      onValueChange={(v) => setEditForm({ ...editForm, nouvelleFiliereId: v })}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue placeholder="Sélectionner une filière" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filieres?.map((f) => (
+                          <SelectItem key={f.id} value={f.id}>{f.nom} - {f.code}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 pt-1">
                   <Switch
@@ -450,7 +470,7 @@ export default function AdminUtilisateursPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditUser(null)}>Annuler</Button>
-            <Button loading={updateMutation.isPending} onClick={handleSaveEdit}>
+            <Button loading={updateMutation.isPending || changerFiliereMutation.isPending} onClick={handleSaveEdit}>
               Enregistrer
             </Button>
           </DialogFooter>

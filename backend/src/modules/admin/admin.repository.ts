@@ -120,4 +120,18 @@ export const adminRepository = {
   setDelegue(etudiantId: string, estDelegue: boolean) {
     return prisma.etudiant.update({ where: { utilisateurId: etudiantId }, data: { estDelegue } });
   },
+
+  /** Désactive toutes les inscriptions actives puis crée une nouvelle inscription dans la filière cible. */
+  changerFiliere(etudiantId: string, filiereId: string, anneeScolaire: string) {
+    return prisma.$transaction(async (tx) => {
+      await tx.inscription.updateMany({
+        where: { etudiantId, statut: 'ACTIVE' },
+        data: { statut: 'INACTIVE' },
+      });
+      return tx.inscription.create({
+        data: { etudiantId, filiereId, anneeScolaire, statut: 'ACTIVE' },
+        include: { filiere: true },
+      });
+    });
+  },
 };
