@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
@@ -28,12 +28,12 @@ export default function AdminDashboardPage() {
       </motion.div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <StatCard label="Utilisateurs actifs" value={isLoading ? '—' : data?.utilisateursActifs ?? 0} icon={Users} color="brand" />
-        <StatCard label="Cours déposés" value={isLoading ? '—' : data?.nbCoursDeposes ?? 0} icon={BookOpen} color="emerald" delay={0.05} />
-        <StatCard label="Interactions chatbot" value={isLoading ? '—' : data?.activiteChatbot ?? 0} icon={MessageCircle} color="violet" delay={0.1} />
+        <StatCard label="Utilisateurs actifs" value={isLoading ? '-' : data?.utilisateursActifs ?? 0} icon={Users} color="brand" />
+        <StatCard label="Cours déposés" value={isLoading ? '-' : data?.nbCoursDeposes ?? 0} icon={BookOpen} color="emerald" delay={0.05} />
+        <StatCard label="Interactions chatbot" value={isLoading ? '-' : data?.activiteChatbot ?? 0} icon={MessageCircle} color="violet" delay={0.1} />
         <StatCard
           label="Taux réussite moyen"
-          value={isLoading || !data?.parFiliere.length ? '—' : `${(data.parFiliere.reduce((a, f) => a + f.tauxReussite, 0) / data.parFiliere.length).toFixed(0)}%`}
+          value={isLoading || !data?.parFiliere.length ? '-' : `${(data.parFiliere.reduce((a, f) => a + f.tauxReussite, 0) / data.parFiliere.length).toFixed(0)}%`}
           icon={TrendingUp}
           color="amber"
           delay={0.15}

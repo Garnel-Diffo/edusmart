@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -26,7 +26,7 @@ export function AnnonceDetail({ id, backHref }: { id: string; backHref: string }
   const router = useRouter();
 
   // Réutilise le cache de la page liste (['annonces', 'list']) si déjà chargé,
-  // sinon refait l'appel — pas d'endpoint dédié /annonces/:id côté backend,
+  // sinon refait l'appel - pas d'endpoint dédié /annonces/:id côté backend,
   // le volume d'annonces reste faible pour ce périmètre.
   const { data, isLoading } = useQuery({
     queryKey: ['annonces', 'list'],

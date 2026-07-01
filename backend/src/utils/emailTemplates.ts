@@ -1,4 +1,4 @@
-const BRAND_COLOR = '#1F4E79';
+﻿const BRAND_COLOR = '#1F4E79';
 
 function layout(title: string, bodyHtml: string): string {
   return `<!DOCTYPE html>
@@ -21,7 +21,7 @@ function layout(title: string, bodyHtml: string): string {
             </tr>
             <tr>
               <td style="padding:16px 32px;background:#f4f6f8;color:#7a7a7a;font-size:12px;">
-                EduSmart — Plateforme de gestion scolaire intelligente. Cet email est automatique, merci de ne pas y répondre.
+                EduSmart - Plateforme de gestion scolaire intelligente. Cet email est automatique, merci de ne pas y répondre.
               </td>
             </tr>
           </table>

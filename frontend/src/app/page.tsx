@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -222,7 +222,7 @@ function HeroDashboard() {
         </div>
       </motion.div>
 
-      {/* Floating badge — top right */}
+      {/* Floating badge - top right */}
       <motion.div
         animate={{ y: [0, 7, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
@@ -232,7 +232,7 @@ function HeroDashboard() {
         <span className="text-[0.65rem] font-semibold text-white">IA Groq + RAG</span>
       </motion.div>
 
-      {/* Floating chip — bottom left */}
+      {/* Floating chip - bottom left */}
       <motion.div
         animate={{ y: [0, -7, 0] }}
         transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
@@ -490,7 +490,7 @@ export default function HomePage() {
                   <f.Icon className={cn('h-5 w-5', f.iconColor)} />
                 </div>
                 <h3 className="mb-2 text-[0.87rem] font-semibold text-white">{f.label}</h3>
-                <p className="text-[0.76rem] leading-relaxed text-white/62">{f.desc}</p>
+                <p className="text-[0.65rem] leading-relaxed text-white/65">{f.desc}</p>
               </motion.div>
             ))}
           </div>

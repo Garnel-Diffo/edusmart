@@ -1,4 +1,4 @@
-import { authRepository } from '@/modules/auth/auth.repository';
+﻿import { authRepository } from '@/modules/auth/auth.repository';
 import { comparePassword } from '@/utils/password';
 import { authService } from '@/modules/auth/auth.service';
 
@@ -25,7 +25,7 @@ function buildUser(overrides: Partial<Record<string, unknown>> = {}) {
   } as never;
 }
 
-describe('authService.login — verrouillage de compte (UC0)', () => {
+describe('authService.login - verrouillage de compte (UC0)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

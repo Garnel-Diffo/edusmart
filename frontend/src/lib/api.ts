@@ -1,4 +1,4 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+﻿import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? 'http://localhost:4000';
 
@@ -33,7 +33,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
  * - /auth/login : un 401 signifie "identifiants invalides", pas un token expiré.
  * - /auth/refresh : c'est le refresh lui-même ; le ré-intercepter créerait une
  *   boucle. L'absence de session au montage de l'app (visiteur non connecté)
- *   est un état normal, pas une erreur à traiter ici — `refreshSession()` s'en
+ *   est un état normal, pas une erreur à traiter ici - `refreshSession()` s'en
  *   charge silencieusement côté appelant (voir hooks/use-auth.ts).
  */
 const EXCLUDED_FROM_REFRESH = ['/auth/login', '/auth/refresh'];

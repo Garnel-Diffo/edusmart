@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -251,7 +251,7 @@ export default function MessageriePage() {
                           m.estSignale && 'opacity-60',
                         )}
                       >
-                        {m.estSignale ? <em className="text-xs">Message signalé — contenu masqué</em> : m.contenu}
+                        {m.estSignale ? <em className="text-xs">Message signalé - contenu masqué</em> : m.contenu}
                       </div>
                       <div className={cn('mt-0.5 flex items-center gap-1.5 px-1 text-[11px] text-muted-foreground', isMine && 'justify-end')}>
                         <span>{formatRelativeTime(m.createdAt)}</span>
@@ -313,7 +313,7 @@ export default function MessageriePage() {
           </DialogHeader>
           {messageASignaler && (
             <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
-              « {messageASignaler.contenu} » — {messageASignaler.auteur.prenom} {messageASignaler.auteur.nom}
+              « {messageASignaler.contenu} » - {messageASignaler.auteur.prenom} {messageASignaler.auteur.nom}
             </div>
           )}
           <DialogFooter>

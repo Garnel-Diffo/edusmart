@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -114,7 +114,7 @@ export default function DocumentsPersonnelsPage() {
               <Input id="titre" value={titre} onChange={(e) => setTitre(e.target.value)} placeholder="Ex : Mes notes - Chapitre 3" />
             </div>
             <div className="space-y-2">
-              <Label>Fichier (PDF, PPTX, DOCX, JPEG, PNG — 50 Mo max)</Label>
+              <Label>Fichier (PDF, PPTX, DOCX, JPEG, PNG - 50 Mo max)</Label>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}

@@ -1,4 +1,4 @@
-# Référence API — Backend EduSmart
+﻿# Référence API - Backend EduSmart
 
 Base URL locale : `http://localhost:4000/api`
 Base URL production : `https://<votre-service>.onrender.com/api`
@@ -59,7 +59,7 @@ Réservé à `ADMIN_SCOLAIRE` / `SUPER_ADMIN`.
 | GET | `/admin/utilisateurs?role=&q=&page=&pageSize=` | Liste paginée, recherche par nom/prénom/email. |
 | GET | `/admin/utilisateurs/:id` | Détail d'un utilisateur. |
 | POST | `/admin/utilisateurs` | Crée un compte (étudiant/enseignant/admin), envoie les identifiants par email. |
-| PUT | `/admin/utilisateurs/:id` | Met à jour (y compris `statutCompte`) — refuse de désactiver le dernier admin actif. |
+| PUT | `/admin/utilisateurs/:id` | Met à jour (y compris `statutCompte`) - refuse de désactiver le dernier admin actif. |
 | POST | `/admin/inscriptions` | `{ etudiantId, filiereId, anneeScolaire, niveau }`. |
 
 ## Structures académiques
@@ -87,7 +87,7 @@ Lecture : tout utilisateur authentifié. Écriture : `ADMIN_SCOLAIRE` / `SUPER_A
 |---|---|---|---|
 | GET | `/edt?semestre=&anneeScolaire=&filiereId=` | Étudiant | `filiereId` optionnel : déduit de l'inscription active si omis. |
 | GET | `/edt?moi=true` | Enseignant | Toutes les séances de l'enseignant connecté. |
-| POST | `/edt` | Admin | `{ filiereId, semestre, anneeScolaire }` — crée l'EDT du semestre. |
+| POST | `/edt` | Admin | `{ filiereId, semestre, anneeScolaire }` - crée l'EDT du semestre. |
 | POST | `/edt/:emploiDuTempsId/seances` | Admin | Ajoute une séance (détection de conflit salle/enseignant, 409 avec créneaux alternatifs). |
 | PUT | `/edt/seances/:seanceId` | Admin | Modifie une séance. |
 | DELETE | `/edt/seances/:seanceId?confirm=true` | Admin | Supprime une séance. |

@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+﻿import Redis from 'ioredis';
 import { env } from '@/config/env';
 import { logger } from '@/config/logger';
 
@@ -15,7 +15,7 @@ export const redis = new Redis(env.REDIS_URL, {
 redis.on('connect', () => logger.info('✅ Connexion Redis (Upstash) établie'));
 redis.on('error', (err) => logger.error({ err }, '❌ Erreur Redis'));
 
-/** Connexion explicite au démarrage du serveur (src/server.ts) — fail-fast non bloquant. */
+/** Connexion explicite au démarrage du serveur (src/server.ts) - fail-fast non bloquant. */
 export async function connectRedis(): Promise<void> {
   if (redis.status !== 'wait') return; // déjà connecté/en cours (ex. redémarrage à chaud en dev)
   await redis.connect().catch((err) => {

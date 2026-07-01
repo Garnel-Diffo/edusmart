@@ -1,4 +1,4 @@
-import { z } from 'zod';
+﻿import { z } from 'zod';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -37,7 +37,7 @@ const envSchema = z.object({
   MAX_LOGIN_ATTEMPTS: z.coerce.number().default(5),
   LOCKOUT_DURATION_MINUTES: z.coerce.number().default(15),
 
-  ETABLISSEMENT_NOM: z.string().default('EduSmart — Établissement d\'enseignement supérieur'),
+  ETABLISSEMENT_NOM: z.string().default('EduSmart - Établissement d\'enseignement supérieur'),
   SEUIL_ADMISSION: z.coerce.number().default(10),
 });
 

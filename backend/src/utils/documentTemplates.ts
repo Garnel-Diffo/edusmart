@@ -1,4 +1,4 @@
-const BRAND_COLOR = '#1F4E79';
+﻿const BRAND_COLOR = '#1F4E79';
 
 function baseStyles(): string {
   return `
@@ -42,14 +42,14 @@ export function bulletinSemestreHtml(params: {
 <html lang="fr"><head><meta charset="utf-8" /><style>${baseStyles()}</style></head>
 <body>
   <div class="header">
-    <div><h1>${params.etablissement}</h1><div class="meta">Bulletin de notes — Semestre ${params.semestre} (${params.anneeScolaire})</div></div>
+    <div><h1>${params.etablissement}</h1><div class="meta">Bulletin de notes - Semestre ${params.semestre} (${params.anneeScolaire})</div></div>
     <div class="meta">Édité le ${new Date().toLocaleDateString('fr-FR')}</div>
   </div>
 
   <h2>Informations de l'étudiant</h2>
   <table>
     <tr><th>Nom</th><td>${params.etudiantNom}</td><th>Prénom</th><td>${params.etudiantPrenom}</td></tr>
-    <tr><th>Matricule</th><td>${params.matricule}</td><th>Filière</th><td>${params.filiere} — ${params.niveau}</td></tr>
+    <tr><th>Matricule</th><td>${params.matricule}</td><th>Filière</th><td>${params.filiere} - ${params.niveau}</td></tr>
   </table>
 
   <h2>Résultats par matière</h2>
@@ -68,10 +68,10 @@ export function bulletinSemestreHtml(params: {
   <table>
     <tr><th>Moyenne générale</th><td class="moyenne">${params.moyenneGenerale.toFixed(2)} / 20</td>
         <th>Mention</th><td>${params.mention}</td></tr>
-    <tr><th>Rang</th><td>${params.rang ?? '—'} / ${params.effectifPromotion}</td><th></th><td></td></tr>
+    <tr><th>Rang</th><td>${params.rang ?? '-'} / ${params.effectifPromotion}</td><th></th><td></td></tr>
   </table>
 
-  <div class="footer">Document généré automatiquement par EduSmart — Plateforme de gestion scolaire intelligente.</div>
+  <div class="footer">Document généré automatiquement par EduSmart - Plateforme de gestion scolaire intelligente.</div>
 </body></html>`;
 }
 
@@ -111,11 +111,11 @@ export function fichePdfHtml(params: { etablissement: string; type: string; cont
 <html lang="fr"><head><meta charset="utf-8" /><style>${baseStyles()} li { margin-left: 16px; }</style></head>
 <body>
   <div class="header">
-    <div><h1>${params.etablissement}</h1><div class="meta">${TYPE_FICHE_LABELS[params.type] ?? 'Fiche de révision'} — généré par IA</div></div>
+    <div><h1>${params.etablissement}</h1><div class="meta">${TYPE_FICHE_LABELS[params.type] ?? 'Fiche de révision'} - généré par IA</div></div>
     <div class="meta">${new Date().toLocaleDateString('fr-FR')}</div>
   </div>
   <div>${markdownLeger(params.contenuGenere)}</div>
-  <div class="footer">Contenu généré automatiquement par le pipeline RAG d'EduSmart — à vérifier avant utilisation académique.</div>
+  <div class="footer">Contenu généré automatiquement par le pipeline RAG d'EduSmart - à vérifier avant utilisation académique.</div>
 </body></html>`;
 }
 
@@ -168,7 +168,7 @@ export function pvDeliberationHtml(params: {
 <html lang="fr"><head><meta charset="utf-8" /><style>${baseStyles()}</style></head>
 <body>
   <div class="header">
-    <div><h1>${params.etablissement}</h1><div class="meta">Procès-verbal de délibération — ${params.filiere} ${params.niveau} — Semestre ${params.semestre} (${params.anneeScolaire})</div></div>
+    <div><h1>${params.etablissement}</h1><div class="meta">Procès-verbal de délibération - ${params.filiere} ${params.niveau} - Semestre ${params.semestre} (${params.anneeScolaire})</div></div>
     <div class="meta">Édité le ${new Date().toLocaleDateString('fr-FR')}</div>
   </div>
 
@@ -186,6 +186,6 @@ export function pvDeliberationHtml(params: {
     </tbody>
   </table>
 
-  <div class="footer">Procès-verbal archivé conformément à la réglementation (conservation 10 ans) — EduSmart.</div>
+  <div class="footer">Procès-verbal archivé conformément à la réglementation (conservation 10 ans) - EduSmart.</div>
 </body></html>`;
 }

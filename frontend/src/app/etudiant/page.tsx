@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
@@ -42,26 +42,26 @@ export default function EtudiantDashboardPage() {
           Bonjour, <span className="font-semibold text-foreground">{user?.prenom}</span> 👋
         </h2>
         <p className="text-sm text-muted-foreground">
-          {filiereActive ? `${filiereActive.nom} — Niveau ${filiereActive.niveau}` : ''} — Matricule {user?.etudiant?.matricule}
+          {filiereActive ? `${filiereActive.nom} - Niveau ${filiereActive.niveau}` : ''} - Matricule {user?.etudiant?.matricule}
         </p>
       </motion.div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard
           label="Moyenne générale"
-          value={loadingNotes ? '—' : `${notes?.moyenneGenerale.toFixed(2) ?? 0}/20`}
+          value={loadingNotes ? '-' : `${notes?.moyenneGenerale.toFixed(2) ?? 0}/20`}
           icon={GraduationCap}
           color="brand"
           delay={0}
         />
         <StatCard
           label="Rang promotion"
-          value={loadingNotes || !notes?.rang ? '—' : `${notes.rang}/${notes.effectifPromotion}`}
+          value={loadingNotes || !notes?.rang ? '-' : `${notes.rang}/${notes.effectifPromotion}`}
           icon={GraduationCap}
           color="violet"
           delay={0.05}
         />
-        <StatCard label="Cours disponibles" value={loadingCours ? '—' : cours?.pagination.total ?? 0} icon={BookOpen} color="emerald" delay={0.1} />
+        <StatCard label="Cours disponibles" value={loadingCours ? '-' : cours?.pagination.total ?? 0} icon={BookOpen} color="emerald" delay={0.1} />
         <StatCard label="Annonces" value={annonces?.pagination.total ?? 0} icon={Megaphone} color="amber" delay={0.15} />
       </div>
 

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -33,7 +33,7 @@ export default function EnseignantEdtPage() {
         <CardContent className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-3">
           <Select value={filiereId} onValueChange={setFiliereId}>
             <SelectTrigger><SelectValue placeholder="Filière" /></SelectTrigger>
-            <SelectContent>{filieres?.map((f) => <SelectItem key={f.id} value={f.id}>{f.nom} — {f.code}</SelectItem>)}</SelectContent>
+            <SelectContent>{filieres?.map((f) => <SelectItem key={f.id} value={f.id}>{f.nom} - {f.code}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={String(semestre)} onValueChange={(v) => setSemestre(Number(v))}>
             <SelectTrigger><SelectValue /></SelectTrigger>

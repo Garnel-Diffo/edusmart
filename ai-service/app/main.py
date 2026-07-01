@@ -1,4 +1,4 @@
-import logging
+﻿import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -15,7 +15,7 @@ logger = logging.getLogger("edusmart.ia")
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    logger.info("Démarrage du service IA EduSmart — chargement du modèle d'embeddings (%s)...", settings.embedding_model)
+    logger.info("Démarrage du service IA EduSmart - chargement du modèle d'embeddings (%s)...", settings.embedding_model)
     embeddings.load_model()
     await connect_db()
     logger.info("✅ Service IA prêt (pool DB connecté, modèle d'embeddings chargé)")

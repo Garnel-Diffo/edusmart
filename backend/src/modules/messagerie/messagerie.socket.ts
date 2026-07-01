@@ -1,4 +1,4 @@
-import type { Server, Socket } from 'socket.io';
+﻿import type { Server, Socket } from 'socket.io';
 import { messagerieService } from '@/modules/messagerie/messagerie.service';
 import { rooms, SOCKET_EVENTS } from '@/sockets/rooms';
 import { logger } from '@/config/logger';
@@ -26,7 +26,7 @@ export function registerMessagerieHandlers(io: Server, socket: Socket): void {
     socket.join(rooms.canal(canalId));
     canauxRejoints.add(canalId);
     // Présence approximative (UC19 : accusé "✓✓" = au moins un autre membre a le canal ouvert),
-    // pas un accusé de lecture message par message — aucune persistance requise.
+    // pas un accusé de lecture message par message - aucune persistance requise.
     broadcastPresence(io, canalId);
   });
 
@@ -43,7 +43,7 @@ export function registerMessagerieHandlers(io: Server, socket: Socket): void {
   });
 
   /**
-   * Indicateur "en train d'écrire..." — diffusion éphémère aux autres membres
+   * Indicateur "en train d'écrire..." - diffusion éphémère aux autres membres
    * du canal uniquement (pas de persistance, pas de vérification d'inscription :
    * la room elle-même n'est accessible qu'après un `canal:join` réussi côté
    * client, qui suppose déjà un historique chargé via l'API REST authentifiée).

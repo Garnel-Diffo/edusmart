@@ -1,4 +1,4 @@
-# Guide de contribution — EduSmart
+﻿# Guide de contribution - EduSmart
 
 Ce document explique comment contribuer au dépôt EduSmart : workflow Git, conventions,
 et fiches de tâches détaillées pour les membres de l'équipe.
@@ -9,8 +9,8 @@ et fiches de tâches détaillées pour les membres de l'équipe.
 - [Workflow Git](#workflow-git)
 - [Convention de commits](#convention-de-commits)
 - [Processus de Pull Request](#processus-de-pull-request)
-- [Fiche de tâche — Paul Loïc MBIDA (Annonces)](#fiche-de-tâche--paul-loïc-mbida-annonces)
-- [Fiche de tâche — Wilfried MEZAGO (Messagerie)](#fiche-de-tâche--wilfried-mezago-messagerie)
+- [Fiche de tâche - Paul Loïc MBIDA (Annonces)](#fiche-de-tâche--paul-loïc-mbida-annonces)
+- [Fiche de tâche - Wilfried MEZAGO (Messagerie)](#fiche-de-tâche--wilfried-mezago-messagerie)
 - [Checklist avant de demander une revue](#checklist-avant-de-demander-une-revue)
 
 ---
@@ -20,8 +20,8 @@ et fiches de tâches détaillées pour les membres de l'équipe.
 | Membre | Rôle | Périmètre |
 |---|---|---|
 | **Garnel DIFFO KENNE** | Chef de projet, Fullstack | Backend Node/Express complet, service IA Python/FastAPI, majorité du frontend Next.js, DevOps/déploiement |
-| **Paul Loïc MBIDA** | Contributeur Frontend | Feature **Annonces** (UC17/UC18) — voir fiche détaillée ci-dessous |
-| **Wilfried MEZAGO** | Contributeur Frontend | Feature **Messagerie** (UC19) — voir fiche détaillée ci-dessous |
+| **Paul Loïc MBIDA** | Contributeur Frontend | Feature **Annonces** (UC17/UC18) - voir fiche détaillée ci-dessous |
+| **Wilfried MEZAGO** | Contributeur Frontend | Feature **Messagerie** (UC19) - voir fiche détaillée ci-dessous |
 
 Le backend, le service IA et l'API ne sont **pas** à modifier par les contributeurs sans
 concertation : ils sont stables et documentés dans [backend/docs/API.md](backend/docs/API.md). Si un
@@ -32,9 +32,9 @@ de modifier `backend/` ou `ai-service/` directement.
 
 Le dépôt utilise un modèle **Git Flow simplifié** à deux branches longues :
 
-- `main` — code de production, déployé automatiquement (Render + Vercel). **Protégée**,
+- `main` - code de production, déployé automatiquement (Render + Vercel). **Protégée**,
   jamais de push direct.
-- `develop` — branche d'intégration. **Protégée**, jamais de push direct.
+- `develop` - branche d'intégration. **Protégée**, jamais de push direct.
 
 Chaque tâche se fait sur une branche dédiée, créée depuis `develop` :
 
@@ -62,7 +62,7 @@ Convention de nommage : `feature/<prenom>/<sujet-court>` (ex. `feature/wilfried/
 4. **Commits petits et fréquents**, avec des messages clairs (voir convention ci-dessous).
 5. **Jamais de `git push --force` sur `develop` ou `main`.**
 6. **Une Pull Request par fonctionnalité**, pas un gros PR fourre-tout.
-7. Ne committez **jamais** de fichier `.env` (ils sont dans `.gitignore` — vérifiez avant
+7. Ne committez **jamais** de fichier `.env` (ils sont dans `.gitignore` - vérifiez avant
    chaque commit avec `git status`).
 
 ## Convention de commits
@@ -95,7 +95,7 @@ style(annonces): améliore l'espacement des cartes sur mobile
 
 ---
 
-## Fiche de tâche — Paul Loïc MBIDA (Annonces)
+## Fiche de tâche - Paul Loïc MBIDA (Annonces)
 
 **Cas d'utilisation couverts** : UC17 (Consulter les annonces), UC18 (Publier une
 annonce). **Branche de départ** : `feature/paul-loic/annonces`.
@@ -136,19 +136,19 @@ annonce). **Branche de départ** : `feature/paul-loic/annonces`.
 - [ ] Recherche texte fonctionnelle.
 - [ ] Pagination "Charger plus" qui fonctionne sans recharger toute la liste.
 - [ ] Aucune régression sur la publication (enseignant/admin).
-- [ ] Testé sur mobile (375px) et desktop — captures d'écran dans la PR.
+- [ ] Testé sur mobile (375px) et desktop - captures d'écran dans la PR.
 - [ ] `npm run lint` et `npm run build` passent sans erreur dans `frontend/`.
 
 ---
 
-## Fiche de tâche — Wilfried MEZAGO (Messagerie)
+## Fiche de tâche - Wilfried MEZAGO (Messagerie)
 
 **Cas d'utilisation couvert** : UC19 (Chat entre étudiants). **Branche de départ** :
 `feature/wilfried/messagerie`.
 
 ### Ce qui existe déjà (ne pas retoucher)
 
-- Serveur Socket.io complet côté backend (rooms, événements, modération) — voir
+- Serveur Socket.io complet côté backend (rooms, événements, modération) - voir
   [backend/docs/API.md](backend/docs/API.md#événements-socketio) pour le contrat exact des événements.
 - Client Socket.io déjà initialisé après login : `frontend/src/lib/socket.ts`,
   `getSocket()` exporté pour récupérer l'instance connectée.
@@ -162,7 +162,7 @@ annonce). **Branche de départ** : `feature/paul-loic/annonces`.
 1. **Indicateur "en train d'écrire..."** : émettre un événement custom (à définir,
    ex. `canal:typing`) quand l'utilisateur tape, et l'afficher pour les autres
    participants. ⚠️ Si vous ajoutez un nouvel événement Socket.io, il doit être géré
-   côté serveur (`backend/src/modules/messagerie/messagerie.socket.ts`) — coordonnez-vous
+   côté serveur (`backend/src/modules/messagerie/messagerie.socket.ts`) - coordonnez-vous
    avec le chef de projet avant de l'utiliser côté client.
 2. **Accusés de réception/lu** : indicateur visuel simple (✓ / ✓✓) sur les messages
    envoyés par l'utilisateur courant.
@@ -174,7 +174,7 @@ annonce). **Branche de départ** : `feature/paul-loic/annonces`.
    et, dans ce cas, ne pas forcer le scroll (afficher plutôt un bouton "Nouveaux
    messages ↓").
 6. **Reconnexion** : tester le comportement quand la connexion Socket.io est coupée puis
-   rétablie (mode avion sur mobile, par exemple) — le canal actif doit être rejoint
+   rétablie (mode avion sur mobile, par exemple) - le canal actif doit être rejoint
    automatiquement à la reconnexion (`socket.on('connect', ...)`).
 7. **Design** : look plus proche d'une app de messagerie moderne (bulles mieux
    différenciées, avatars, horodatage groupé par tranche de temps plutôt que sur chaque
@@ -187,7 +187,7 @@ annonce). **Branche de départ** : `feature/paul-loic/annonces`.
 - [ ] Confirmation avant signalement.
 - [ ] Scroll intelligent (pas de saut forcé si l'utilisateur lit l'historique).
 - [ ] Reconnexion testée manuellement (couper le Wi-Fi puis le rétablir).
-- [ ] Testé sur mobile (375px) et desktop — captures d'écran dans la PR.
+- [ ] Testé sur mobile (375px) et desktop - captures d'écran dans la PR.
 - [ ] `npm run lint` et `npm run build` passent sans erreur dans `frontend/`.
 
 ---
@@ -198,7 +198,7 @@ annonce). **Branche de départ** : `feature/paul-loic/annonces`.
 - [ ] `npm run lint` sans erreur.
 - [ ] `npm run build` sans erreur.
 - [ ] Testé manuellement en local (`npm run dev` dans `frontend/`, backend +
-      service IA déjà lancés — voir [README.md](README.md#installation-locale)).
+      service IA déjà lancés - voir [README.md](README.md#installation-locale)).
 - [ ] Testé en responsive (mobile + desktop).
 - [ ] Pas de fichier `.env` ni de secret dans le diff (`git status` propre).
 - [ ] Description de PR complète avec captures d'écran si changement visuel.

@@ -1,5 +1,5 @@
-// ============================================================
-// Types TypeScript partagés — miroir des entités Prisma/backend
+﻿// ============================================================
+// Types TypeScript partagés - miroir des entités Prisma/backend
 // ============================================================
 
 export type Role = 'ETUDIANT' | 'ENSEIGNANT' | 'ADMIN_SCOLAIRE' | 'DIRECTION' | 'SUPER_ADMIN';

@@ -1,4 +1,4 @@
-import { Readable } from 'stream';
+﻿import { Readable } from 'stream';
 import { cloudinary } from '@/config/cloudinary';
 
 export interface UploadResult {
@@ -10,7 +10,7 @@ export interface UploadResult {
 
 /**
  * Téléverse un buffer vers Cloudinary en `type: authenticated` afin que le
- * fichier ne soit jamais accessible par une URL publique directe — seules des
+ * fichier ne soit jamais accessible par une URL publique directe - seules des
  * URLs signées et expirables (cf. `buildSignedDownloadUrl`) permettent le
  * téléchargement (UC2). `resourceType` vaut `raw` pour PDF/PPTX/DOCX et
  * `image` pour les images (supports personnels, pièces jointes d'annonces).

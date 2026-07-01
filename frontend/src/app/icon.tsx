@@ -1,4 +1,4 @@
-import { ImageResponse } from 'next/og';
+﻿import { ImageResponse } from 'next/og';
 
 // Favicon affiché dans l'onglet du navigateur (32 × 32 px).
 // Next.js App Router sert ce fichier comme <link rel="icon"> automatiquement.
@@ -19,7 +19,7 @@ export default function Icon() {
           position: 'relative',
         }}
       >
-        {/* Mortarboard top board — carré 11×11 pivoté 45° → losange 15.6 px de diagonal */}
+        {/* Mortarboard top board - carré 11×11 pivoté 45° → losange 15.6 px de diagonal */}
         <div
           style={{
             position: 'absolute',

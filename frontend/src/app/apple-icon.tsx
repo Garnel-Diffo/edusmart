@@ -1,6 +1,6 @@
-import { ImageResponse } from 'next/og';
+﻿import { ImageResponse } from 'next/og';
 
-// Icône Apple (180 × 180 px) — affichée lors de l'ajout à l'écran d'accueil iOS/iPadOS.
+// Icône Apple (180 × 180 px) - affichée lors de l'ajout à l'écran d'accueil iOS/iPadOS.
 // Next.js App Router sert ce fichier comme <link rel="apple-touch-icon"> automatiquement.
 export const runtime = 'edge';
 export const size = { width: 180, height: 180 };
@@ -35,7 +35,7 @@ export default function AppleIcon() {
           }}
         />
 
-        {/* Cap band — sous le point bas du losange (90, 72+46=118) */}
+        {/* Cap band - sous le point bas du losange (90, 72+46=118) */}
         <div
           style={{
             position: 'absolute',

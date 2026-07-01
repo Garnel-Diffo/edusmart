@@ -1,11 +1,11 @@
-import puppeteer, { type Browser } from 'puppeteer';
+﻿import puppeteer, { type Browser } from 'puppeteer';
 import { logger } from '@/config/logger';
 
 let browserInstance: Browser | null = null;
 
 /**
  * Réutilise une seule instance Chromium pour générer plusieurs PDF (bulletins
- * d'une promotion) plutôt que d'en lancer une par document — indispensable
+ * d'une promotion) plutôt que d'en lancer une par document - indispensable
  * pour tenir le NFR "200 bulletins en moins de 2 minutes" (UC11) sur un
  * service Render à ressources limitées.
  */

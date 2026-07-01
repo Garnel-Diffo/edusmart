@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -136,7 +136,7 @@ export default function EnseignantCoursPage() {
               <Input id="titre" value={titre} onChange={(e) => setTitre(e.target.value)} placeholder="Ex : Chapitre 3 - Architecture logicielle" />
             </div>
             <div className="space-y-2">
-              <Label>Fichier (PDF, PPTX, DOCX — 50 Mo max)</Label>
+              <Label>Fichier (PDF, PPTX, DOCX - 50 Mo max)</Label>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}

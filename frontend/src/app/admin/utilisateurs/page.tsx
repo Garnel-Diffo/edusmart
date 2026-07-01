@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -160,7 +160,7 @@ export default function AdminUtilisateursPage() {
                     <SelectTrigger><SelectValue placeholder="Sélectionner une filière" /></SelectTrigger>
                     <SelectContent>
                       {filieres?.map((f) => (
-                        <SelectItem key={f.id} value={f.id}>{f.nom} — {f.code} (Niveau {f.niveau})</SelectItem>
+                        <SelectItem key={f.id} value={f.id}>{f.nom} - {f.code} (Niveau {f.niveau})</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

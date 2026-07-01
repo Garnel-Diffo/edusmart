@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -73,7 +73,7 @@ export default function EtudiantNotesPage() {
                 <Trophy className="h-8 w-8 text-violet-500" />
                 <div>
                   <p className="text-xs text-muted-foreground">Rang promotion</p>
-                  <p className="text-xl font-bold">{data.rang ?? '—'}<span className="text-sm font-normal text-muted-foreground">/{data.effectifPromotion}</span></p>
+                  <p className="text-xl font-bold">{data.rang ?? '-'}<span className="text-sm font-normal text-muted-foreground">/{data.effectifPromotion}</span></p>
                 </div>
               </CardContent>
             </Card>

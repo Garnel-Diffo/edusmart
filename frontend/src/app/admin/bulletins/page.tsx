@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -28,7 +28,7 @@ export default function AdminBulletinsPage() {
   const genererMutation = useMutation({
     mutationFn: () => bulletinsApi.generer({ filiereId, niveau, semestre, anneeScolaire }),
     onSuccess: () => {
-      toast.success('Génération lancée — les bulletins et le PV seront disponibles sous peu');
+      toast.success('Génération lancée - les bulletins et le PV seront disponibles sous peu');
       setMatieresIncompletes(null);
     },
     onError: (err: unknown) => {
