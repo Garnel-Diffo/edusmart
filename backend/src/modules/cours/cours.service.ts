@@ -2,7 +2,7 @@ import type { FormatDocument, Prisma } from '@prisma/client';
 import { prisma } from '@/config/prisma';
 import { coursRepository } from '@/modules/cours/cours.repository';
 import { ApiError } from '@/utils/ApiError';
-import { uploadDocumentBuffer, buildSignedDownloadUrl } from '@/utils/cloudinaryUpload';
+import { uploadDocumentBuffer, buildSignedDownloadUrl, deleteCloudinaryAsset } from '@/utils/cloudinaryUpload';
 import { indexationRagQueue } from '@/jobs/queues';
 import { notifyManyUsers } from '@/modules/notifications/notifications.service';
 import { emitToFiliere } from '@/sockets/emit';
@@ -134,6 +134,71 @@ export const coursService = {
     await coursRepository.createTelechargementLog(coursDocumentId, etudiant.id, ip); // traçabilité UC2 NFR
 
     return { url, nomFichier: document.nomFichier };
+  },
+
+  /** Modifier le titre et/ou remplacer le fichier d'un support de cours. */
+  async updateDocument(
+    coursDocumentId: string,
+    enseignantId: string,
+    data: { titre?: string },
+    file?: { buffer: Buffer; mimetype: string; size: number; originalname: string },
+  ) {
+    const document = await coursRepository.findById(coursDocumentId);
+    if (!document) throw ApiError.notFound('Document introuvable');
+    if (document.enseignantId !== enseignantId) {
+      throw ApiError.forbidden("Vous n'êtes pas l'auteur de ce document");
+    }
+
+    if (file) {
+      const format = MIME_TO_FORMAT[file.mimetype];
+      if (!format) throw ApiError.badRequest('Format non supporté. Formats acceptés : PDF, PPTX, DOCX.');
+
+      const { publicId, secureUrl, bytes, version } = await uploadDocumentBuffer(
+        file.buffer,
+        `edusmart/cours/${document.matiereId}`,
+        file.originalname,
+      );
+
+      const ancienPublicId = document.cloudinaryPublicId;
+      const updated = await coursRepository.replace(coursDocumentId, {
+        titre: data.titre ?? document.titre,
+        nomFichier: file.originalname,
+        format,
+        tailleOctets: bytes,
+        cloudinaryPublicId: publicId,
+        cloudinaryVersion: version,
+        cloudinaryUrl: secureUrl,
+      });
+
+      if (ancienPublicId !== publicId) {
+        await deleteCloudinaryAsset(ancienPublicId, 'raw').catch(() => undefined);
+      }
+
+      await indexationRagQueue.add('index-document', { coursDocumentId });
+      await recordAudit({ utilisateurId: enseignantId, action: 'UPDATE', entite: 'CoursDocument', entiteId: coursDocumentId, donneesApres: { titre: updated.titre, format } });
+      return updated;
+    }
+
+    if (data.titre && data.titre !== document.titre) {
+      const updated = await coursRepository.updateTitre(coursDocumentId, data.titre);
+      await recordAudit({ utilisateurId: enseignantId, action: 'UPDATE', entite: 'CoursDocument', entiteId: coursDocumentId, donneesAvant: { titre: document.titre }, donneesApres: { titre: data.titre } });
+      return updated;
+    }
+
+    return document;
+  },
+
+  /** Supprimer un support de cours (Cloudinary + DB avec cascade chunks). */
+  async deleteDocument(coursDocumentId: string, enseignantId: string) {
+    const document = await coursRepository.findById(coursDocumentId);
+    if (!document) throw ApiError.notFound('Document introuvable');
+    if (document.enseignantId !== enseignantId) {
+      throw ApiError.forbidden("Vous n'êtes pas l'auteur de ce document");
+    }
+
+    await coursRepository.deleteById(coursDocumentId);
+    await deleteCloudinaryAsset(document.cloudinaryPublicId, 'raw').catch(() => undefined);
+    await recordAudit({ utilisateurId: enseignantId, action: 'DELETE', entite: 'CoursDocument', entiteId: coursDocumentId, donneesAvant: { titre: document.titre } });
   },
 
   async marquerStatutIndexation(coursDocumentId: string, statut: 'EN_COURS' | 'INDEXE' | 'ERREUR') {

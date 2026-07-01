@@ -46,6 +46,14 @@ export const coursRepository = {
     return prisma.coursDocument.update({ where: { id }, data: { ...data, statutIndexation: 'NON_INDEXE' } });
   },
 
+  updateTitre(id: string, titre: string) {
+    return prisma.coursDocument.update({ where: { id }, data: { titre } });
+  },
+
+  deleteById(id: string) {
+    return prisma.coursDocument.delete({ where: { id } });
+  },
+
   updateStatutIndexation(id: string, statut: StatutIndexation) {
     return prisma.coursDocument.update({ where: { id }, data: { statutIndexation: statut } });
   },

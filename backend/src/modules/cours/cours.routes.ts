@@ -20,4 +20,13 @@ router.post(
   coursController.upload,
 );
 
+router.put(
+  '/:id',
+  authorize('ENSEIGNANT'),
+  uploadCoursDocument,
+  coursController.update,
+);
+
+router.delete('/:id', authorize('ENSEIGNANT'), coursController.delete);
+
 export default router;

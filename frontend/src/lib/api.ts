@@ -108,6 +108,9 @@ export const coursApi = {
   download: (id: string) => api.get(`/cours/${id}/download`),
   upload: (formData: FormData) =>
     api.post('/cours/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  update: (id: string, formData: FormData) =>
+    api.put(`/cours/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  delete: (id: string) => api.delete(`/cours/${id}`),
 };
 
 export const edtApi = {

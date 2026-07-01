@@ -27,4 +27,17 @@ export const coursController = {
     const result = await coursService.getDownloadUrl(req.params.id, req.user!, req.ip);
     res.json({ success: true, data: result });
   }),
+
+  update: asyncHandler(async (req: Request, res: Response) => {
+    const file = req.file
+      ? { buffer: req.file.buffer, mimetype: req.file.mimetype, size: req.file.size, originalname: req.file.originalname }
+      : undefined;
+    const updated = await coursService.updateDocument(req.params.id, req.user!.id, { titre: req.body.titre }, file);
+    res.json({ success: true, data: updated });
+  }),
+
+  delete: asyncHandler(async (req: Request, res: Response) => {
+    await coursService.deleteDocument(req.params.id, req.user!.id);
+    res.json({ success: true });
+  }),
 };
